@@ -30,8 +30,6 @@ expo-debug.log*
 android/
 ios/
 
-# Misc
-.env
 
 # === Flask (Python) ===
 
