@@ -37,7 +37,7 @@ export default function TabLayout() {
         <TouchableOpacity
           style={[
             styles.footerItem,
-            (pathname === '/chat' || pathname === '/result') && styles.activeItem,
+            (pathname === '/chat' || pathname === '/result' || pathname === '/sendTeacher') && styles.activeItem,
           ]}
           onPress={() => router.push('/chat')}
         >
