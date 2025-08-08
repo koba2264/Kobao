@@ -1,6 +1,7 @@
 from flask import Flask
 from apps.config import config
 from flask_cors import CORS
+from .models import db
 
 
 def create_app(config_key):
@@ -10,8 +11,13 @@ def create_app(config_key):
     # あとで受け取れるサイトを絞る
     CORS(app)
 
-    from apps.chatbot import views as chatbot_views
+    db.init_app(app)
 
-    app.register_blueprint(chatbot_views.chatbot, url_prefix="/chatbot")
+    from apps.student import views as student_views
+
+    app.register_blueprint(student_views.student, url_prefix="/student")
+
+    with app.app_context():
+        db.create_all()
     
     return app
