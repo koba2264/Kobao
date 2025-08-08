@@ -20,7 +20,7 @@ class LocalConfig(BaseConfig):
 
 
 class TestingConfig(BaseConfig):
-    SQLALCHEMY_DATABASE_URI ='postgresql+psycopg2://postgres:Takuhaya1103@localhost:5432/test'
+    SQLALCHEMY_DATABASE_URI ='postgresql+psycopg2://postgres:Takuhaya1103@localhost:5432/kobao'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # CSRF対策のON/OFF
     WTF_CSRF_ENABLED = False

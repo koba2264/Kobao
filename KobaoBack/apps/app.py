@@ -17,12 +17,12 @@ def create_app():
 
     db.init_app(app)
 
-    Migrate(app,db)
-
     from apps.chatbot import views as chatbot_views
-    from apps.chatbot import models
+    from apps.teacher import views as teacher_views
 
     app.register_blueprint(chatbot_views.chatbot, url_prefix="/chatbot")
+
+    app.register_blueprint(teacher_views.teacher, url_prefix="/teacher")
     
     return app
 
