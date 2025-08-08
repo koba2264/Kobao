@@ -1,14 +1,14 @@
-import { Stack, Slot, useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useEffect } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 export default function RootLayout() {
   const router = useRouter();
 
   useEffect(() => {
-    // 描画が完了してから router.replace() を実行する
+    // Stack
     requestAnimationFrame(() => {
-      const role = 'test'; // 仮のロール。実際は AsyncStorage などから取得
+      const role = 'test';
 
       if (role === 'test') {
         router.replace('/(test)');
@@ -23,12 +23,15 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <Stack>
-      {/* Slot によって子画面の表示を管理 */}
-      <Stack.Screen name="(test)" options={{ headerShown: false }} />
-      <Stack.Screen name="(student)" options={{ headerShown: false }} />
-      <Stack.Screen name="(teacher)" options={{ headerShown: false }} />
-      <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
-    </Stack>
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }} edges={['top','bottom']}>
+        <Stack screenOptions= {{ headerShown: false }}>
+          <Stack.Screen name="(test)" />
+          <Stack.Screen name="(student)" />
+          <Stack.Screen name="(teacher)" />
+          <Stack.Screen name="(auth)/login" />
+        </Stack>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
