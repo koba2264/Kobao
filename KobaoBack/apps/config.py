@@ -17,6 +17,8 @@ class LocalConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = F"sqlite:///{basedir / 'local.sqlite'}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = True
+    # qDrantのurl
+    QDRANT_URL = "http://localhost:6333"
 
 
 class TestingConfig(BaseConfig):
