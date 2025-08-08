@@ -3,88 +3,75 @@ import { useRouter } from 'expo-router';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 
 const Home: React.FC = () => {
-  // ルーターを使用して画面遷移を行う
   const router = useRouter();
 
-  // 質問が保留中かどうか( true=質問中 / false=質問なし　で判定)
-  const [hasPendingQuestion, setHasPendingQuestion] = useState(false);
-  // 保留中の質問内容
-  const [pendingQuestionText, setPendingQuestionText] = useState("");
+  // 質問の型定義
+  type Question = {
+    id: string;
+    content: string;
+    asked_at: string;
+    ansed_flag: boolean;
+    stu_id: string;
+    is_read: boolean;
+  };
 
+  // 質問リスト（未回答・回答済みすべて）
+  const [questions, setQuestions] = useState<Question[]>([]);
 
-  // Flask API から質問ステータスを取得（まだ）
-  // useEffect(() => {
-  //   fetch("http://localhost:5000/api/pending")// ここは実際のAPIエンドポイントに合わせて変更してください
-  //     .then(res => res.json())// ここでAPIからのレスポンスを取得
-  //     .then(data => {  // data.pending が true の場合、質問が保留中
-  //       setHasPendingQuestion(data.pending);   // data.question が存在する場合、質問内容を設定
-  //       setPendingQuestionText(data.question || ""); // デフォルト値を設定
-  //     })
-  //     .catch(err => {
-  //       console.error("APIエラー:", err);
-  //     });
-  // }, []);
+  // 質問取得
+  useEffect(() => {
+    fetch("http://127.0.0.1:5000/student/messages")
+      .then(res => res.json())
+      .then((data: Question[]) => {
+        setQuestions(data);  // そのまま全部セット
+      })
+      .catch(err => {
+        console.error("APIエラー:", err);
+      });
+  }, []);
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
-        
-        {/* 回答状況*/}
-        {hasPendingQuestion ? (// 質問が保留中の場合
-         
-         <View style={styles.statusBox}> 
-            
-            <Text style={styles.statusTitle}>現在の質問ステータス</Text>
-            
-            {/* 保留中の質問内容 */}
-            <Text style={styles.statusQuestion}>{pendingQuestionText}</Text>
-            
-            {/* 質問が保留中であることを示すメッセージ */}
-            <Text style={styles.statusNote}>回答が来るまでしばらくお待ちください</Text>
+        <View style={styles.statusBox}>
+          <Text style={styles.statusTitle}>現在の質問ステータス</Text>
 
-            {/* 回答を見るボタン */}
-            {/* ここで、回答を見るボタンを押すと結果画面に遷移 */}
-            <TouchableOpacity style={styles.teacherButton} onPress={() => router.push("/result")}>
-              <Text style={styles.teacherButtonText}>回答を見る</Text>
-            </TouchableOpacity>
-          
-          </View>
-        ) : (// 質問が保留中でない場合
-          <View style={styles.statusBox}>
-
-            <Text style={styles.statusTitle}>現在の質問ステータス</Text>      
-            <Text style={styles.statusNote}>現在、回答待ちの質問はありません。</Text>
-          </View>
-        )}
-
-
+          {questions.length === 0 ? (
+            <Text style={styles.statusNote}>質問はまだありません。</Text>
+          ) : (
+            <>
+              {questions.map((q) => (
+                <View key={q.id} style={styles.questionBlock}>
+                  <Text style={styles.statusQuestion}>{`・${q.content}`}</Text>
+                  <Text style={styles.statusDate}>
+                    {new Date(q.asked_at).toLocaleString()}
+                  </Text>
+                  <Text style={styles.statusNote}>
+                    {q.ansed_flag ? "回答を見る" : "回答が来るまでしばらくお待ちください"}
+                  </Text>
+                </View>
+              ))}
+            </>
+          )}
+        </View>
       </ScrollView>
-        {/* 質問ボタン */}
-        {/* 質問ボタンを押すとチャット画面に遷移 */}
-        <TouchableOpacity style={styles.askButton} onPress={() => router.push("/chat")}>
-          <Text style={styles.askButtonText}>質問する</Text>
-        </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.askButton}
+        onPress={() => router.push("/chat")}
+      >
+        <Text style={styles.askButtonText}>質問する</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
 export default Home;
-
-// スタイル定義
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
     justifyContent: "space-between",
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  welcome: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginTop: 8,
   },
   content: {
     paddingHorizontal: 16,
@@ -92,21 +79,18 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
     flexGrow: 1,
     width: "100%",
-    
   },
   askButton: {
     width: "90%",
-    backgroundColor: "#ff981aff", 
-    color: "#fff",
-    fontWeight: "bold",
+    backgroundColor: "#ff981aff",
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: "center",
     position: "absolute",
     bottom: 30,
-    left: '5%',  
-    right: '5%', 
-    alignSelf: "center", 
+    left: '5%',
+    right: '5%',
+    alignSelf: "center",
   },
   askButtonText: {
     color: "#fff",
@@ -126,11 +110,16 @@ const styles = StyleSheet.create({
   statusQuestion: {
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 4,
+  },
+  statusDate: {
+    fontSize: 12,
+    color: "#666",
+    marginBottom: 6,
   },
   statusNote: {
     fontSize: 13,
     color: "#555",
+    marginTop: 10,
   },
   teacherButton: {
     marginTop: 12,
@@ -142,25 +131,7 @@ const styles = StyleSheet.create({
   teacherButtonText: {
     color: "#fff",
   },
-  historySection: {
-    marginBottom: 24,
-  },
-  historyTitle: {
-    fontWeight: "600",
+  questionBlock: {
     marginBottom: 8,
-    fontSize: 16,
-  },
-  historyItem: {
-    flexDirection: "row",
-    gap: 8,
-    alignItems: "center",
-    fontSize: 15,
-    marginBottom: 4,
-  },
-  more: {
-    textAlign: "right",
-    fontSize: 13,
-    color: "#888",
-    marginTop: 4,
   },
 });

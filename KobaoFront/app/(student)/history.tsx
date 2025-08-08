@@ -1,22 +1,32 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 
-const dummyHistory = [
-  { id: '1', message: '山本隆之とは？', date: '2025-08-05' },
-  { id: '2', message: 'KOBAOの由来', date: '2025-08-04' },
-];
+type Message = {
+  id: string;
+  content: string;
+};
 
 export default function HistoryScreen() {
+  const [messages, setMessages] = useState<Message[]>([]);
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:5000/student/messages')
+      .then((response) => response.json())
+      .then((data) => setMessages(data))
+      .catch((error) => {
+        console.error('Failed to fetch messages:', error);
+      });
+  }, []);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>過去の質問一覧</Text>
       <FlatList
-        data={dummyHistory}
+        data={messages}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.card}>
-            <Text style={styles.date}>{item.date}</Text>
-            <Text style={styles.message}>{item.message}</Text>
+            <Text style={styles.message}>{item.content}</Text>
           </TouchableOpacity>
         )}
       />
