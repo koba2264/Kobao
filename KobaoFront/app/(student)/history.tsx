@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+
 
 type Message = {
   id: string;
@@ -22,10 +24,11 @@ export default function HistoryScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>過去の質問一覧</Text>
       <FlatList
+
         data={messages}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card}>
+          <TouchableOpacity style={styles.card} onPress={() => goDetail(item.id)}>
             <Text style={styles.message}>{item.content}</Text>
           </TouchableOpacity>
         )}
