@@ -1,5 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, Alert, StyleSheet, Text, FlatList } from 'react-native';
+
+import React, { useState } from 'react';
+import { View, TextInput, Button, Text, StyleSheet, FlatList } from 'react-native';
+
+type Question = {
+  id: number;
+  text: string; 
+}
 
 type Message = {
   id: number;
@@ -8,8 +14,11 @@ type Message = {
 
 export default function IndexScreen() {
   const [text, setText] = useState('');
+
+  const [data, setData] = useState<Question[]>([]);
   const [responseText, setResponseText] = useState('');
   const [messages, setMessages] = useState<Message[]>([]); // ← メッセージ一覧の状態
+
 
   // メッセージを送信する
   const sendTextToFlask = async () => {
@@ -22,22 +31,11 @@ export default function IndexScreen() {
         body: JSON.stringify({ message: text }),
       });
 
-      const data = await response.json();
-      setResponseText(data.result);
-      fetchMessages(); // 送信後にメッセージ一覧を更新
-    } catch (error) {
-
-    }
-  };
-
-  // メッセージ一覧を取得する
-  const fetchMessages = async () => {
-    try {
-      const response = await fetch('http://127.0.0.1:5000/student/messages');
-      const data = await response.json();
-      setMessages(data);
-    } catch (error) {
-
+      const json: Question[] = await response.json();
+      setData(json);
+      console.log(data);
+    } catch {
+      
     }
   };
 
@@ -53,15 +51,12 @@ export default function IndexScreen() {
         onChangeText={setText}
       />
       <Button title="送信" onPress={sendTextToFlask} />
-
-      <Text>サーバーからの返答: {responseText}</Text>
-
-      <Text>メッセージ一覧:</Text>
       <FlatList
-        data={messages}
+        data={data}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <Text>{item.message}</Text>
+          <Text>{item.text}</Text>
+
         )}
       />
     </View>
