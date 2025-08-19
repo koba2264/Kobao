@@ -14,11 +14,10 @@ const Home: React.FC = () => {
     is_read: boolean;
   };
 
-// 返信が来ていない質問の型
+  // 返信が来ていない質問の型
   const [questions, setQuestions] = useState<Question[]>([]);
-// 返信が来ているかどうかのフラグ
+  // 返信が来ているかどうかのフラグ
   const ansed_flag = questions.some(q => q.ansed_flag);
-  const is_read = questions.some(q => q.is_read);
   // 回答待ち（未回答）の質問があるかどうか
   const hasPendingQuestions = questions.some(q => !q.ansed_flag);
   // 未回答の質問件数
@@ -40,59 +39,66 @@ const Home: React.FC = () => {
   // 返信が来た時の質問一覧画面
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.statusBox}>
-
-          {ansed_flag  ? (
-
-            <>
-              <Text style={styles.statusTitle}>返信あり！</Text>
-              {questions
-                .filter((q) => !q.is_read)
-                .map((q) => (
-                  <View key={q.id} style={styles.questionBlock}>
-                    <Text style={styles.statusQuestion}>{`・${q.content}`}</Text>
-                    <Text style={styles.statusDate}>
-                      {new Date(q.asked_at).toLocaleString()}
-                    </Text>
-
-                    <TouchableOpacity
-                      style={styles.teacherButton}
-                      onPress={() => router.push({
-                        pathname: '/(student)/question/[id]',
-                        params: { id: q.id }
-                      })}
-                    >
-                      <Text style={styles.teacherButtonText}>
-                        {q.ansed_flag ? "回答を見る" : "詳細を見る"}
+      {/* 質問リスト部分 */}
+      <View style={styles.listContainer}>
+        <ScrollView contentContainerStyle={styles.content}>
+          <View style={styles.statusBox}>
+            {ansed_flag ? (
+              <>
+                <Text style={styles.statusTitle}>返信あり！</Text>
+                {questions
+                  .filter(q => q.ansed_flag && !q.is_read)
+                  .map((q) => (
+                    <View key={q.id} style={styles.questionBlock}>
+                      <Text style={styles.statusQuestion}  
+                       numberOfLines={1}
+                       ellipsizeMode="tail"
+                      >
+                        {`・${q.content}`}
                       </Text>
-                    </TouchableOpacity>
-                  </View>
-                ))}
-            </>
-          ) : (
-            <Text style={styles.statusTitle}>まだ回答がありません</Text>
-          )}
-        </View>
-      </ScrollView>
 
-      {hasPendingQuestions && (
-      <TouchableOpacity
-        style={styles.stnButton}
-        onPress={() => router.push("/standby")}
-      >
-        <Text style={styles.askButtonText}>回答待ち{pendingCount}件</Text>
-      </TouchableOpacity>
-    )}
+                      <TouchableOpacity
+                        style={styles.teacherButton}
+                        onPress={() => router.push({
+                          pathname: '/(student)/question/[id]',
+                          params: { id: q.id }
+                        })}
+                      >
+                        <Text style={styles.teacherButtonText}>
+                          {q.ansed_flag ? "回答を見る" : "詳細を見る"}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+              </>
+            ) : (
+              <Text style={styles.statusTitle}>まだ回答がありません</Text>
+            )}
+          </View>
+        </ScrollView>
+      </View>
 
-      <TouchableOpacity
-        style={styles.askButton}
-        onPress={() => router.push("/chat")}
-      >
-        <Text style={styles.askButtonText}>質問する</Text>
-      </TouchableOpacity>
+      {/* ボタン部分 */}
+      <View style={styles.buttonContainer}>
+        {hasPendingQuestions && (
+        <TouchableOpacity
+          style={styles.stnButton}
+          onPress={() => router.push("/standby")}
+        >
+          <Text style={styles.askButtonText}>回答待ち{pendingCount}件</Text>
+        </TouchableOpacity>
+      )}
+
+        <TouchableOpacity
+          style={styles.askButton}
+          onPress={() => router.push("/chat")}
+        >
+          <Text style={styles.askButtonText}>質問する</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
+
 };
 
 export default Home;
