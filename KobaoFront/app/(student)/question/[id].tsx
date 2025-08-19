@@ -1,4 +1,3 @@
-// app/(student)/historyDetaile/[id].tsx
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -22,7 +21,7 @@ export default function HistoryDetail() {
   useEffect(() => {
     if (!id) return;
 
-    fetch(`http://127.0.0.1:5000/student/messages/${id}`)
+    fetch(`http://127.0.0.1:5000/student/answer/${id}`)
       .then((res) => res.json())
       .then((data: QuestionDetail) => {
         setQuestion(data);
@@ -30,10 +29,12 @@ export default function HistoryDetail() {
 
         // 既読でなければ既読更新
         if (!data.is_read) {
-          fetch(`http://127.0.0.1:5000/student/messages/${id}/read`, {
-            method: "PUT",
-          }).catch((err) => console.error("既読更新失敗:", err));
-        }
+        fetch(`http://127.0.0.1:5000/student/is_read/${id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ is_read: true }),
+        }).catch((err) => console.error("既読更新失敗:", err));
+      }
       })
       .catch((err) => {
         console.error("詳細取得エラー:", err);

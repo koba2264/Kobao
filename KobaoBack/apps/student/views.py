@@ -38,29 +38,28 @@ def get_messages():
 
 @student.route('/answer/<string:question_id>', methods=["GET"])
 def get_answer(question_id):
-    # QAテーブルから対応する回答IDを取得
     qa = QA.query.filter_by(que_id=question_id).first()
-
     if not qa:
         return jsonify({"message": "まだ回答が登録されていません"}), 404
 
-    # Questionテーブルから質問内容を取得
     question = Question.query.get(question_id)
     if not question:
         return jsonify({"message": "質問が見つかりません"}), 404
 
-    # Answerテーブルから回答本文を取得
     answer = Answer.query.get(qa.ans_id)
-
     if not answer:
         return jsonify({"message": "回答が見つかりません"}), 404
 
     return jsonify({
-        "question": question.content,
-        "answer_id": str(answer.id),
-        "content": answer.content,
-        "answered_at": answer.answerd_at.strftime("%Y-%m-%d %H:%M:%S")
+        "id": str(question.id),
+        "content": question.content,
+        "asked_at": question.asked_at.strftime("%Y-%m-%dT%H:%M:%S") if question.asked_at else None,
+        "answer": answer.content,
+        "ansed_flag": True,
+        "stu_id": question.stu_id,
+        "is_read": question.is_read
     })
+
 
 
 @student.route("/is_read/<uuid:question_id>", methods=["PATCH"])
