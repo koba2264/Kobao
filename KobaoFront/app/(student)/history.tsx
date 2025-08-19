@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 
@@ -13,14 +14,14 @@ export default function HistoryScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
   const router = useRouter();
 
-  useEffect(() => {
-    fetch('http://127.0.0.1:5000/student/messages')
-      .then((response) => response.json())
-      .then((data) => setMessages(data))
-      .catch((error) => {
-        console.error('Failed to fetch messages:', error);
-      });
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetch('http://127.0.0.1:5000/student/messages')
+        .then((response) => response.json())
+        .then((data: Message[]) => setMessages(data))
+        .catch((error) => console.error('Failed to fetch messages:', error));
+    }, [])
+  );
 
   function goDetail(id: string): void {
     router.push({
@@ -37,7 +38,9 @@ export default function HistoryScreen() {
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
         <TouchableOpacity style={styles.card} onPress={() => goDetail(item.id)}>
-          <Text style={styles.message}>{item.content}</Text>
+          <Text style={styles.message}
+          numberOfLines={1}
+          ellipsizeMode="tail">・{item.content}</Text>
         </TouchableOpacity>
       )}
       ListEmptyComponent={

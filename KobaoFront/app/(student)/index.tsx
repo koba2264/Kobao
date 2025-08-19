@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 
@@ -16,25 +17,28 @@ const Home: React.FC = () => {
 
   // 返信が来ていない質問の型
   const [questions, setQuestions] = useState<Question[]>([]);
-  // 返信が来ているかどうかのフラグ
-  const ansed_flag = questions.some(q => q.ansed_flag);
+  // 未読の返信があるかどうか
+  const hasUnreadAnswers = questions.some(q => q.ansed_flag && !q.is_read);
   // 回答待ち（未回答）の質問があるかどうか
   const hasPendingQuestions = questions.some(q => !q.ansed_flag);
   // 未回答の質問件数
   const pendingCount = questions.filter(q => !q.ansed_flag).length;
+  // 回答済みかつ未読のものだけ
+  const answeredCount = questions.filter(q => q.ansed_flag && !q.is_read);
 
 
 
-  useEffect(() => {
+
+  useFocusEffect(
+  React.useCallback(() => {
     fetch("http://127.0.0.1:5000/student/messages")
       .then(res => res.json())
       .then((data: Question[]) => {
         setQuestions(data);
       })
-      .catch(err => {
-        console.error("APIエラー:", err);
-      });
-  }, []);
+      .catch(err => console.error("APIエラー:", err));
+  }, [])
+);
 
   // 返信が来た時の質問一覧画面
   return (
@@ -43,9 +47,9 @@ const Home: React.FC = () => {
       <View style={styles.listContainer}>
         <ScrollView contentContainerStyle={styles.content}>
           <View style={styles.statusBox}>
-            {ansed_flag ? (
+            {hasUnreadAnswers ? (
               <>
-                <Text style={styles.statusTitle}>返信あり！</Text>
+                <Text style={styles.statusTitle}>新着{answeredCount.length}件</Text>
                 {questions
                   .filter(q => q.ansed_flag && !q.is_read)
                   .map((q) => (
