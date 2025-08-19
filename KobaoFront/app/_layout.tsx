@@ -10,6 +10,7 @@ export default function RootLayout() {
     requestAnimationFrame(() => {
       const role = 'login'; // 仮のロール。実際は AsyncStorage などから取得
 
+
       if (role === 'test') {
         router.replace('/(test)');
       } else if (role === 'student') {
