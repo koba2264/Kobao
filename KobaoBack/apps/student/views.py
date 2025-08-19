@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from apps.models import db,Question
+from apps.models import db,Question,Answer,QA
 
 student = Blueprint(
     "student",
@@ -34,3 +34,51 @@ def get_messages():
         for msg in messages
     ]
     return jsonify(result)
+
+
+@student.route('/answer/<string:question_id>', methods=["GET"])
+def get_answer(question_id):
+    # QAテーブルから対応する回答IDを取得
+    qa = QA.query.filter_by(que_id=question_id).first()
+
+    if not qa:
+        return jsonify({"message": "まだ回答が登録されていません"}), 404
+
+    # Questionテーブルから質問内容を取得
+    question = Question.query.get(question_id)
+    if not question:
+        return jsonify({"message": "質問が見つかりません"}), 404
+
+    # Answerテーブルから回答本文を取得
+    answer = Answer.query.get(qa.ans_id)
+
+    if not answer:
+        return jsonify({"message": "回答が見つかりません"}), 404
+
+    return jsonify({
+        "question": question.content,
+        "answer_id": str(answer.id),
+        "content": answer.content,
+        "answered_at": answer.answerd_at.strftime("%Y-%m-%d %H:%M:%S")
+    })
+
+
+@student.route("/is_read/<uuid:question_id>", methods=["PATCH"])
+def update_question_is_read(question_id):
+    # 該当質問を取得
+    question = Question.query.get_or_404(question_id)
+
+    # JSONデータを取得
+    data = request.get_json()
+    if "is_read" not in data:
+        return jsonify({"error": "is_read field is required"}), 400
+
+    # 更新
+    question.is_read = bool(data["is_read"])
+    db.session.commit()
+
+    return jsonify({
+        "message": "is_read updated",
+        "id": str(question.id),
+        "is_read": question.is_read
+    })
