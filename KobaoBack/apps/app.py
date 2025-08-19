@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 
 db = SQLAlchemy()
+jwt = JWTManager()
 
 def create_app(config_key):
     app = Flask(__name__)
@@ -13,7 +14,7 @@ def create_app(config_key):
     # あとで受け取れるサイトを絞る
     CORS(app)
     # jwt認証用
-    JWTManager(app)
+    jwt.init_app(app)
     
     db.init_app(app)
 
