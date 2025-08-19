@@ -1,17 +1,25 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet, ScrollView, Pressable, FlatList } from 'react-native';
+
+// chatbotからの返答用
+type Question = {
+  id: number;
+  text: string; 
+}
 
 export default function ResultScreen() {
 
   // 入力されたテキスト
   const [text, setText] = useState('');
 
+  // chatbotからの返答されたテキストのリスト
+  const [reply, setReply] = useState<Question[] | null>(null);
   // ルーターからのパラメータ取得
   const { message } = useLocalSearchParams();
 
   // 返答の状態管理
-  const [reply, setReply] = useState<string | null>(null);
+  // const [reply, setReply] = useState<string | null>(null);
 
   // ルーターを使用して画面遷移を行う
   const sendTextToFlask = () => {
@@ -21,18 +29,22 @@ export default function ResultScreen() {
     });
   };
 
+
   // Flask API からの返答を取得
   useEffect(() => {
+    setReply(null);
     if (!message) return;
 
-    fetch('http://127.0.0.1:5000/chatbot/receive', {
+    fetch('https://10174dc7873a.ngrok-free.app/chatbot/receive', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message: message }),
     })
       .then(res => res.json())
-      .then(data => setReply(data.result))
-      .catch(() => setReply('エラーが発生しました。'));
+      .then((data: Question[]) => {
+        setReply(data);
+      })
+      .catch(() => setReply([{id:1,text:'エラーが発生しました'}]));
   }, [message]);
 
   if (!reply) {
@@ -61,7 +73,15 @@ export default function ResultScreen() {
         <View style={styles.messageBlockLeft}>
           <Text style={styles.name}>KOBAO</Text>
           <View style={styles.botMessageContainer}>
-            <Text style={styles.botMessage}>{reply}</Text>
+            {/* 返答のリストを表示 */}
+
+            {(reply && reply.length > 0) ? (
+              reply.map((re) => (
+              <Text key={re.id} style={styles.botMessage}>{re.text}</Text>
+              ))
+            ) : (
+              <Text style={styles.botMessage}>回答がありません</Text>
+            )}
           </View>
         </View>
       </View>
