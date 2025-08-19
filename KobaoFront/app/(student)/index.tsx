@@ -31,7 +31,7 @@ const Home: React.FC = () => {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.statusBox}>
-          <Text style={styles.statusTitle}>現在の質問ステータス</Text>
+          <Text style={styles.statusTitle}>返信あり！</Text>
 
           {questions.length === 0 ? (
             <Text style={styles.statusNote}>質問はまだありません。</Text>
@@ -69,6 +69,12 @@ const Home: React.FC = () => {
         onPress={() => router.push("/chat")}
       >
         <Text style={styles.askButtonText}>質問する</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => router.push("/standby")}
+      >
+        <Text>待機画面</Text>
       </TouchableOpacity>
     </View>
   );
