@@ -24,7 +24,8 @@ export default function TabLayout() {
         <TouchableOpacity
           style={[
             styles.footerItem,
-            pathname === '/' && styles.activeItem,
+             (pathname === '/' || pathname.startsWith('/question/') ) && styles.activeItem,
+        
           ]}
           onPress={() => router.push('/')}
         >

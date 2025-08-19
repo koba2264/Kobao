@@ -3,21 +3,21 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, ActivityIndicator, StyleSheet, ScrollView, Pressable } from 'react-native';
 
 export default function ResultScreen() {
-  
+
   // 入力されたテキスト
   const [text, setText] = useState('');
-  
+
   // ルーターからのパラメータ取得
   const { message } = useLocalSearchParams();
-  
+
   // 返答の状態管理
   const [reply, setReply] = useState<string | null>(null);
-  
+
   // ルーターを使用して画面遷移を行う
   const sendTextToFlask = () => {
     router.push({
       pathname: '/(student)/sendTeacher',
-      params: { message }, 
+      params: { message },
     });
   };
 
@@ -64,7 +64,7 @@ export default function ResultScreen() {
         </View>
       </View>
       {/* 送信ボタン */}
-      <Pressable style={styles.askButton}  onPress={sendTextToFlask}>
+      <Pressable style={styles.askButton} onPress={sendTextToFlask}>
         <Text style={styles.askButtonText}>先生に送信</Text>
       </Pressable>
     </ScrollView>
@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'flex-start',
     padding: 20,
+    width: '100%',
     backgroundColor: '#fff',
   },
   chatContainer: {
@@ -122,20 +123,17 @@ const styles = StyleSheet.create({
   },
   askButton: {
     width: "90%",
-    backgroundColor: "#ff981aff", 
-    color: "#fff",
-    fontWeight: "bold",
+    backgroundColor: "#ff981aff",
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: "center",
     position: "absolute",
     bottom: 30,
-    left: '5%',  
-    right: '5%', 
-    alignSelf: "center", 
+    alignSelf: "center",
   },
   askButtonText: {
-    color: "#fff",
-    fontSize: 18,
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });
