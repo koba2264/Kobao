@@ -10,6 +10,7 @@ type Message = {
 
 export default function HistoryScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     fetch('http://127.0.0.1:5000/student/messages')
@@ -20,11 +21,17 @@ export default function HistoryScreen() {
       });
   }, []);
 
+  function goDetail(id: string): void {
+    router.push({
+      pathname: '/(student)/historyDetaile/[id]',
+      params: { id},
+    });
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>過去の質問一覧</Text>
       <FlatList
-
         data={messages}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
@@ -32,6 +39,9 @@ export default function HistoryScreen() {
             <Text style={styles.message}>{item.content}</Text>
           </TouchableOpacity>
         )}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>まだ質問履歴がありません</Text>
+        }
       />
     </View>
   );
@@ -45,6 +55,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     color: '#FF8C00',
   },
+    emptyText: {
+    textAlign: 'center',
+    marginTop: 50,
+    fontSize: 16,
+    color: '#aaa',
+  },
+
   card: {
     backgroundColor: '#FFE4B5',
     padding: 12,

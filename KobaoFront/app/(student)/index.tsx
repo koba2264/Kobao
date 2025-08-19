@@ -5,7 +5,6 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-nati
 const Home: React.FC = () => {
   const router = useRouter();
 
-  // 質問の型定義
   type Question = {
     id: string;
     content: string;
@@ -15,15 +14,13 @@ const Home: React.FC = () => {
     is_read: boolean;
   };
 
-  // 質問リスト（未回答・回答済みすべて）
   const [questions, setQuestions] = useState<Question[]>([]);
 
-  // 質問取得
   useEffect(() => {
     fetch("http://127.0.0.1:5000/student/messages")
       .then(res => res.json())
       .then((data: Question[]) => {
-        setQuestions(data);  // そのまま全部セット
+        setQuestions(data);
       })
       .catch(err => {
         console.error("APIエラー:", err);
@@ -40,15 +37,26 @@ const Home: React.FC = () => {
             <Text style={styles.statusNote}>質問はまだありません。</Text>
           ) : (
             <>
-              {questions.map((q) => (
+              {questions
+                .filter((q) => !q.is_read)
+                .map((q) => (
                 <View key={q.id} style={styles.questionBlock}>
                   <Text style={styles.statusQuestion}>{`・${q.content}`}</Text>
                   <Text style={styles.statusDate}>
                     {new Date(q.asked_at).toLocaleString()}
                   </Text>
-                  <Text style={styles.statusNote}>
-                    {q.ansed_flag ? "回答を見る" : "回答が来るまでしばらくお待ちください"}
-                  </Text>
+
+                  <TouchableOpacity
+                    style={styles.teacherButton}
+                    onPress={() => router.push({
+                      pathname: '/(student)/question/[id]',
+                      params: { id: q.id }
+                    })}
+                  >
+                    <Text style={styles.teacherButtonText}>
+                      {q.ansed_flag ? "回答を見る" : "詳細を見る"}
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               ))}
             </>
@@ -67,6 +75,7 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -93,8 +102,9 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   askButtonText: {
-    color: "#fff",
-    fontSize: 18,
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   statusBox: {
     backgroundColor: "#ff8c0834",
