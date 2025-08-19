@@ -19,15 +19,9 @@ const Home: React.FC = () => {
   };
 
   const [questions, setQuestions] = useState<Question[]>([]);
-
-  // 未読の返信があるかどうか
-  const hasUnreadAnswers = questions.some(q => q.ansed_flag && !q.is_read);
-  // 回答待ち（未回答）の質問があるかどうか
-  const hasPendingQuestions = questions.some(q => !q.ansed_flag);
-  const pendingCount = questions.filter(q => !q.ansed_flag).length;
-  // 回答済みかつ未読のものだけ
-  const answeredCount = questions.filter(q => q.ansed_flag && !q.is_read);
-
+  // 返信が来ているかどうかのフラグ
+  const ansed_flag = questions.some(q => q.ansed_flag);
+  const is_read = questions.some(q => q.is_read);
 
   useFocusEffect(
   React.useCallback(() => {
@@ -44,8 +38,8 @@ const Home: React.FC = () => {
     <View style={[styles.container, { backgroundColor: isDark ? "#000" : "#fff" }]}>
       <View style={styles.listContainer}>
         <ScrollView contentContainerStyle={styles.content}>
-          <View style={[styles.statusBox, { backgroundColor: isDark ? "#222" : "#ff8c0834" }]}>
-            {hasUnreadAnswers ? (
+          <View style={styles.statusBox}>
+            {ansed_flag && is_read ? (
               <>
                 <Text style={[styles.statusTitle, { color: isDark ? "#fff" : "#000" }]}>新着{answeredCount.length}件</Text>
 
@@ -53,12 +47,9 @@ const Home: React.FC = () => {
                   .filter(q => q.ansed_flag && !q.is_read)
                   .map((q) => (
                     <View key={q.id} style={styles.questionBlock}>
-                      <Text
-                        style={[styles.statusQuestion, { color: isDark ? "#fff" : "#000" }]}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {`・${q.content}`}
+                      <Text style={styles.statusQuestion}>{`・${q.content}`}</Text>
+                      <Text style={styles.statusDate}>
+                        {new Date(q.asked_at).toLocaleString()}
                       </Text>
 
                       <TouchableOpacity

@@ -53,12 +53,15 @@ export default function ResultScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>質問内容</Text>
+    return (
+        <View style={styles.container}>
+            <Text style={styles.title}>質問内容</Text>
 
-      <View style={styles.messageContainer}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Text style={styles.userMessage}>{displayMessage}</Text>
-        </ScrollView>
-      </View>
+            <View style={styles.messageContainer}>
+                <ScrollView contentContainerStyle={styles.scrollContent}>
+                    <Text style={styles.userMessage}>{displayMessage}</Text>
+                </ScrollView>
+            </View>
 
       <Pressable style={styles.askButton} onPress={onSendPress}>
         <Text style={styles.askButtonText}>決定</Text>
@@ -70,6 +73,10 @@ export default function ResultScreen() {
 const getStyles = (isDark: boolean) =>
   StyleSheet.create({
     container: {
+        flex: 1,
+        backgroundColor: '#fff',
+        padding: 20,
+        justifyContent: 'space-between', 
       flex: 1,
       backgroundColor: isDark ? '#121212' : '#fff',
       padding: 20,

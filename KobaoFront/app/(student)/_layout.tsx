@@ -95,9 +95,7 @@ export default function TabLayout() {
             style={pathname === '/mypage' ? styles.activeText : [styles.inactiveText, { color: isDark ? "#bbb" : "#444" }]}
             numberOfLines={1}
             ellipsizeMode="tail"
-          >
-            マイページ
-          </Text>
+          >プロフィール</Text>
         </TouchableOpacity>
       </View>
     </View>
