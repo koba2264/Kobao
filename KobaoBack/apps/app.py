@@ -1,7 +1,7 @@
 from flask import Flask
 from apps.config import config
 from flask_cors import CORS
-from .models import db
+from apps.models import db
 
 
 def create_app(config_key):

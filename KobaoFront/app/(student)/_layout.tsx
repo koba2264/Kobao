@@ -29,7 +29,7 @@ export default function TabLayout() {
           ]}
           onPress={() => router.push('/')}
         >
-          <Text style={pathname === '/' ? styles.activeText : styles.inactiveText}>⌂</Text>
+          <Text style={pathname === '/' ? styles.activeText : styles.inactiveText}>🏠</Text>
           <Text style={pathname === '/' ? styles.activeText : styles.inactiveText} numberOfLines={1}
             ellipsizeMode="tail"
           >ホーム</Text>
@@ -42,7 +42,7 @@ export default function TabLayout() {
           ]}
           onPress={() => router.push('/chat')}
         >
-          <Text style={pathname === '/chat' ? styles.activeText : styles.inactiveText}>💭</Text>
+          <Text style={pathname === '/chat' ? styles.activeText : styles.inactiveText}>💬</Text>
           <Text style={pathname === '/chat' ? styles.activeText : styles.inactiveText} numberOfLines={1}
             ellipsizeMode="tail"
           >質問</Text>
@@ -55,7 +55,7 @@ export default function TabLayout() {
           ]}
           onPress={() => router.push('/history')}
         >
-          <Text style={pathname === '/history' ? styles.activeText : styles.inactiveText}>📙</Text>
+          <Text style={pathname === '/history' ? styles.activeText : styles.inactiveText}>📜</Text>
           <Text style={pathname === '/history' ? styles.activeText : styles.inactiveText} numberOfLines={1}
             ellipsizeMode="tail"
           >履歴</Text>
@@ -71,7 +71,7 @@ export default function TabLayout() {
           <Text style={pathname === '/profile' ? styles.activeText : styles.inactiveText}>👤</Text>
           <Text style={pathname === '/profile' ? styles.activeText : styles.inactiveText} numberOfLines={1}
             ellipsizeMode="tail"
-          >マイページ</Text>
+          >プロフィール</Text>
         </TouchableOpacity>
 
       </View>
