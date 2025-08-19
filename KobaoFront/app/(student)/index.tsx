@@ -36,7 +36,9 @@ const Home: React.FC = () => {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.statusBox}>
+
           {ansed_flag && is_read ? (
+
             <>
               <Text style={styles.statusTitle}>返信あり！</Text>
               {questions
