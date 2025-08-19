@@ -36,6 +36,7 @@ const Home: React.FC = () => {
           ) : (
             <>
               {questions
+
                 .filter((q) => q.ansed_flag)
                 .map((q) => (
                 <View key={q.id} style={styles.questionBlock}>
@@ -135,5 +136,5 @@ const styles = StyleSheet.create({
   questionBlock: {
     marginBottom: 8,
   },
-  
+
 });

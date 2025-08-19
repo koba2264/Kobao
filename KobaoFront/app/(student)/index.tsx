@@ -14,7 +14,11 @@ const Home: React.FC = () => {
     is_read: boolean;
   };
 
+// 返信が来ていない質問の型
   const [questions, setQuestions] = useState<Question[]>([]);
+// 返信が来ているかどうかのフラグ
+  const ansed_flag = questions.some(q => q.ansed_flag);
+  const is_read = questions.some(q => q.is_read);
 
   useEffect(() => {
     fetch("http://127.0.0.1:5000/student/messages")
@@ -27,42 +31,51 @@ const Home: React.FC = () => {
       });
   }, []);
 
+  // 返信が来た時の質問一覧画面
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.statusBox}>
-          <Text style={styles.statusTitle}>現在の質問ステータス</Text>
 
-          {questions.length === 0 ? (
-            <Text style={styles.statusNote}>質問はまだありません。</Text>
-          ) : (
+          {ansed_flag && is_read ? (
+
             <>
+              <Text style={styles.statusTitle}>返信あり！</Text>
               {questions
                 .filter((q) => !q.is_read)
                 .map((q) => (
-                <View key={q.id} style={styles.questionBlock}>
-                  <Text style={styles.statusQuestion}>{`・${q.content}`}</Text>
-                  <Text style={styles.statusDate}>
-                    {new Date(q.asked_at).toLocaleString()}
-                  </Text>
-
-                  <TouchableOpacity
-                    style={styles.teacherButton}
-                    onPress={() => router.push({
-                      pathname: '/(student)/question/[id]',
-                      params: { id: q.id }
-                    })}
-                  >
-                    <Text style={styles.teacherButtonText}>
-                      {q.ansed_flag ? "回答を見る" : "詳細を見る"}
+                  <View key={q.id} style={styles.questionBlock}>
+                    <Text style={styles.statusQuestion}>{`・${q.content}`}</Text>
+                    <Text style={styles.statusDate}>
+                      {new Date(q.asked_at).toLocaleString()}
                     </Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
+
+                    <TouchableOpacity
+                      style={styles.teacherButton}
+                      onPress={() => router.push({
+                        pathname: '/(student)/question/[id]',
+                        params: { id: q.id }
+                      })}
+                    >
+                      <Text style={styles.teacherButtonText}>
+                        {q.ansed_flag ? "回答を見る" : "詳細を見る"}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
             </>
+          ) : (
+            <Text style={styles.statusTitle}>まだ回答がありません</Text>
           )}
         </View>
       </ScrollView>
+
+      <TouchableOpacity
+        style={styles.stnButton}
+        onPress={() => router.push("/standby")}
+      >
+        <Text style={styles.askButtonText}>回答待ちの質問</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.askButton}
@@ -101,6 +114,18 @@ const styles = StyleSheet.create({
     right: '5%',
     alignSelf: "center",
   },
+  stnButton: {
+    width: "90%",
+    backgroundColor: "#ff981aff",
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: "center",
+    position: "absolute",
+    bottom: 110,
+    left: '5%',
+    right: '5%',
+    alignSelf: "center",
+  },
   askButtonText: {
     color: '#fff',
     fontSize: 20,
@@ -110,6 +135,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ff8c0834",
     borderRadius: 10,
     padding: 16,
+    height: 500,
     marginBottom: 24,
   },
   statusTitle: {
