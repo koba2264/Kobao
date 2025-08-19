@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 type Message = {
   id: string;
   content: string;
+  is_read: boolean;
 };
 
 export default function HistoryScreen() {
@@ -32,17 +33,18 @@ export default function HistoryScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>過去の質問一覧</Text>
       <FlatList
-        data={messages}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card} onPress={() => goDetail(item.id)}>
-            <Text style={styles.message}>{item.content}</Text>
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>まだ質問履歴がありません</Text>
-        }
-      />
+      data={messages.filter((msg) => msg.is_read)}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <TouchableOpacity style={styles.card} onPress={() => goDetail(item.id)}>
+          <Text style={styles.message}>{item.content}</Text>
+        </TouchableOpacity>
+      )}
+      ListEmptyComponent={
+        <Text style={styles.emptyText}>まだ既読の質問はありません</Text>
+      }
+    />
+
     </View>
   );
 }

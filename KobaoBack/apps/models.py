@@ -2,8 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import UUID
 from datetime import datetime
 import uuid
-
-db = SQLAlchemy()
+from apps.app import db
 
 class Tag(db.Model):
     __tablename__ = 'tag'
