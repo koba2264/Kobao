@@ -31,8 +31,6 @@ const Home: React.FC = () => {
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.statusBox}>
-          <Text style={styles.statusTitle}>返信あり！</Text>
-
           {questions.length === 0 ? (
             <Text style={styles.statusNote}>質問はまだありません。</Text>
           ) : (
@@ -49,12 +47,12 @@ const Home: React.FC = () => {
                   <TouchableOpacity
                     style={styles.teacherButton}
                     onPress={() => router.push({
-                      pathname: '/(student)/question/[id]',
+                      pathname: '/(student)/questionStandby/[id]',
                       params: { id: q.id }
                     })}
                   >
                     <Text style={styles.teacherButtonText}>
-                      {q.ansed_flag ? "回答を見る" : "詳細を見る"}
+                      詳細を見る
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -63,13 +61,6 @@ const Home: React.FC = () => {
           )}
         </View>
       </ScrollView>
-
-      <TouchableOpacity
-        style={styles.askButton}
-        onPress={() => router.push("/chat")}
-      >
-        <Text style={styles.askButtonText}>質問する</Text>
-      </TouchableOpacity>
     </View>
   );
 };

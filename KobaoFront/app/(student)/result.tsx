@@ -45,6 +45,8 @@ export default function ResultScreen() {
   }
 
   return (
+    <View style={styles.all}>
+
     <ScrollView contentContainerStyle={styles.scrollContent}>
       <View style={styles.chatContainer}>
         {/* ユーザー */}
@@ -63,15 +65,19 @@ export default function ResultScreen() {
           </View>
         </View>
       </View>
+    </ScrollView>
       {/* 送信ボタン */}
       <Pressable style={styles.askButton} onPress={sendTextToFlask}>
         <Text style={styles.askButtonText}>先生に送信</Text>
       </Pressable>
-    </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  all:{
+   flex: 1, backgroundColor: "#fff", 
+  },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'flex-start',
@@ -130,6 +136,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 30,
     alignSelf: "center",
+
   },
   askButtonText: {
     color: '#fff',
