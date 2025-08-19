@@ -31,7 +31,7 @@ export default function ResultScreen() {
             </ScrollView>
 
             <Pressable style={styles.askButton} onPress={onSendPress}>
-                <Text style={styles.askButtonText}>先生に送信</Text>
+                <Text style={styles.askButtonText}>決定</Text>
             </Pressable>
         </View>
     );
@@ -41,6 +41,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+        padding: 20,
+        width: '100%',
     },
     scrollContent: {
         padding: 20,
@@ -75,14 +77,14 @@ const styles = StyleSheet.create({
         marginBottom: 40,
     },
     askButton: {
-        position: 'absolute',
+        width: "90%",
+        backgroundColor: "#ff981aff",
+        borderRadius: 10,
+        paddingVertical: 12,
+        alignItems: "center",
+        position: "absolute",
         bottom: 30,
-        left: '5%',
-        right: '5%',
-        backgroundColor: '#FF8C00',
-        paddingVertical: 14,
-        borderRadius: 12,
-        alignItems: 'center',
+        alignSelf: "center",
     },
     askButtonText: {
         color: '#fff',
