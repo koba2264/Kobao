@@ -17,21 +17,61 @@ export default function QuestionByTagScreen() {
   const [tagOpen, setTagOpen] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tagItems, setTagItems] = useState([
-    { label: "Java", value: "Java" },
-    { label: "Python", value: "Python" },
-    { label: "React Native", value: "React Native" },
-    { label: "データベース", value: "データベース" },
-  ]);
+      { label: "", value: "" }
+    ]);
+  const select_all_tag = async () =>{
+      try {
+        const response = await fetch('http://127.0.0.1:5000/teacher/select_tag', {
+        method: 'GET',
+        headers: {'Content-Type': 'application/json'}
+        })
+        const data = await response.json();
+        // console.log(data)
+        console.log(data.tag)
+        console.log("bbb")
+        // データの受け取り(map)。(tag[値]:any[型])
+        const formattedTags = data.tag.map
+        ((tag:any) => ({
+          label: tag.tab_name.trim(),
+          value: tag.tab_name.trim(),
+        }));
+        setTagItems(formattedTags)
+      } catch (error) {
+          Alert.alert("エラー", "タグ追加中に問題が発生しました");
+      }
+    } 
+    useEffect(() => {
+      if(tagOpen){
+        select_all_tag();
+      }
+    },[tagOpen])
+  
+    const select_all_question = async () =>{
+      try {
+        const response = await fetch('http://127.0.0.1:5000/teacher/select_question_tag', {
+        method: 'GET',
+        headers: {'Content-Type': 'application/json'}
+        })
+        const data = await response.json();
+        // console.log(data)
+        // データの受け取り(map)。(tag[値]:any[型])
+        const Qestions_tag = data.question_tag.map
+        ((question_tag:any) => ({
+          id: question_tag.id,
+          title: question_tag.content,
+          tags: [question_tag.tab_name.trim()],
+        }));
+        setQuestions(Qestions_tag);
+        setFilteredQuestions(Qestions_tag);
+        console.log(Qestions_tag[0].tags);
+        
+      } catch (error) {
+        Alert.alert("エラー", "タグ追加中に問題が発生しました");
+      }
+    } 
  
   useEffect(() => {
-    const dummyQuestions: Question[] = [
-      { id: 1, title: "JavaとPythonの違いは何？", tags: ["Java", "Python"] },
-      { id: 2, title: "React NativeでAPIを呼び出すには？", tags: ["React Native"] },
-      { id: 3, title: "データベースの正規化とは？", tags: ["データベース"] },
-      { id: 4, title: "Pythonでのリスト操作方法", tags: ["Python"] },
-    ];
-    setQuestions(dummyQuestions);
-    setFilteredQuestions(dummyQuestions);
+    select_all_question();
   }, []);
  
   // タグ変更時にフィルタリング

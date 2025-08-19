@@ -36,6 +36,7 @@ export default function TagAddScreen() {
       <TextInput
         style={styles.input}
         value={newTag}
+        maxLength={10}
         onChangeText={setNewTag}
         placeholder="例: JavaScript"
         placeholderTextColor="#888"

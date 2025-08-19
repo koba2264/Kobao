@@ -3,7 +3,6 @@ import { View,Text,Button,FlatList,StyleSheet,TextInput,Alert,TouchableOpacity,M
 import DropDownPicker from "react-native-dropdown-picker";
 import { useRouter } from "expo-router";
 import { nanoid } from "nanoid";
-import { useFocusEffect } from '@react-navigation/native';
 
  
 type Question = {
@@ -52,15 +51,28 @@ export default function QuestionListScreen() {
  
   const router = useRouter();
   (globalThis as any).__tagAddCallbacks ??= {};
- 
+
+  const select_all_question = async () =>{
+    try {
+      const response = await fetch('http://127.0.0.1:5000/teacher/select_question', {
+      method: 'GET',
+      headers: {'Content-Type': 'application/json'}
+      })
+      const data = await response.json();
+      // console.log(data)
+      // データの受け取り(map)。(tag[値]:any[型])
+      const Qestions = data.question.map
+      ((question:any) => ({
+        id: question.id,
+        title: question.content,
+      }));
+      setQuestions(Qestions);
+    } catch (error) {
+        Alert.alert("エラー", "タグ追加中に問題が発生しました");
+    }
+  } 
   useEffect(() => {
-    const dummyQuestions: Question[] = [
-      { id: 1, title: "JavaとPythonの違いは何ですか？" },
-      { id: 2, title: "データベースの正規化とは？" },
-      { id: 3, title: "React NativeでAPIを呼び出す方法は？" },
-      { id: 4, title: "Pythonでのリスト操作方法" },
-    ];
-    setQuestions(dummyQuestions);
+    select_all_question();
   }, []);
  
   const handleAnswerSubmit = () => {
