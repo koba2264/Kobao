@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Alert, StyleSheet } from 'react-native';
+import { View, TextInput, Button, Text, StyleSheet, FlatList } from 'react-native';
+
+type Question = {
+  id: number;
+  text: string; 
+};
 
 export default function IndexScreen() {
   const [text, setText] = useState('');
+  const [data, setData] = useState<Question[]>([]);
 
   const sendTextToFlask = async () => {
     try {
@@ -14,7 +20,8 @@ export default function IndexScreen() {
         body: JSON.stringify({ message: text }),
       });
 
-      const data = await response.json();
+      const json: Question[] = await response.json();
+      setData(json);
       console.log(data);
     } catch {
       
@@ -29,6 +36,13 @@ export default function IndexScreen() {
         onChangeText={setText}
       />
       <Button title="送信" onPress={sendTextToFlask} />
+      <FlatList
+        data={data}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <Text>{item.text}</Text>
+        )}
+      />
     </View>
   );
 }
