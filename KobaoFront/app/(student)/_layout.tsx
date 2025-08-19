@@ -66,7 +66,7 @@ export default function TabLayout() {
             styles.footerItem,
             pathname === '/profile' && styles.activeItem,
           ]}
-          onPress={() => router.push('/profile')}
+          onPress={() => router.push('/')}
         >
           <Text style={pathname === '/profile' ? styles.activeText : styles.inactiveText}>👤</Text>
           <Text style={pathname === '/profile' ? styles.activeText : styles.inactiveText} numberOfLines={1}
