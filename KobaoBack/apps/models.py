@@ -4,7 +4,6 @@ from datetime import datetime
 import uuid
 from apps.app import db
 
-
 class Tag(db.Model):
     __tablename__ = 'tag'
     id = db.Column(db.Integer, primary_key=True)

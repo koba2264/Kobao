@@ -35,8 +35,13 @@ class TestingConfig(BaseConfig):
     # CSRF対策のON/OFF
     WTF_CSRF_ENABLED = False
 
+class PostgresConfig(BaseConfig):
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 # 辞書にマッピング
 config = {
     "testing" : TestingConfig,
     "local" : LocalConfig,
+    "postgres":PostgresConfig,
 }

@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from qdrant_client import QdrantClient, models
 from sentence_transformers import SentenceTransformer
 
+
 chatbot = Blueprint(
     "chatbot",
     __name__,
@@ -11,8 +12,12 @@ chatbot = Blueprint(
 @chatbot.route('/receive', methods=["POST"])
 def receive():
     data = request.get_json()
+    message = data.get('message')
+    new_msg = StudentMessage(message=message)
+    db.session.add(new_msg)
+    db.session.commit()
     print(data.get('message'))
-    
+
     model = SentenceTransformer('intfloat/multilingual-e5-large')  # ここを好きな日本語対応モデルに
 
     client = QdrantClient(url="http://localhost:6333")

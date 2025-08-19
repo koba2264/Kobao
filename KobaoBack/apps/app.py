@@ -22,5 +22,12 @@ def create_app(config_key):
 
     app.register_blueprint(chatbot_views.chatbot, url_prefix="/chatbot")
     app.register_blueprint(auth_views.auth, url_prefix="/auth")
+
+    from apps.student import views as student_views
+
+    app.register_blueprint(student_views.student, url_prefix="/student")
+
+    with app.app_context():
+        db.create_all()
     
     return app
