@@ -71,7 +71,7 @@ export default function TabLayout() {
           <Text style={pathname === '/profile' ? styles.activeText : styles.inactiveText}>👤</Text>
           <Text style={pathname === '/profile' ? styles.activeText : styles.inactiveText} numberOfLines={1}
             ellipsizeMode="tail"
-          >プロフィール</Text>
+          >マイページ</Text>
         </TouchableOpacity>
 
       </View>

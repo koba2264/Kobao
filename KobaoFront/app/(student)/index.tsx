@@ -17,8 +17,7 @@ const Home: React.FC = () => {
   // 返信が来ていない質問の型
   const [questions, setQuestions] = useState<Question[]>([]);
   // 返信が来ているかどうかのフラグ
-  const ansed_flag = questions.some(q => q.ansed_flag);
-  const is_read = questions.some(q => q.is_read);
+  const unreadAnsweredQuestions = questions.filter(q => q.ansed_flag && q.is_read === false);
 
   useEffect(() => {
     fetch("http://127.0.0.1:5000/student/messages")
@@ -38,14 +37,20 @@ const Home: React.FC = () => {
       <View style={styles.listContainer}>
         <ScrollView contentContainerStyle={styles.content}>
           <View style={styles.statusBox}>
-            {ansed_flag && is_read ? (
+            {unreadAnsweredQuestions.length > 0 ? (
               <>
                 <Text style={styles.statusTitle}>返信あり！</Text>
                 {questions
                   .filter((q) => !q.is_read)
                   .map((q) => (
                     <View key={q.id} style={styles.questionBlock}>
-                      <Text style={styles.statusQuestion}>{`・${q.content}`}</Text>
+                      <Text style={styles.statusQuestion}  
+                       numberOfLines={1}
+                       ellipsizeMode="tail"
+                      >
+                        {`・${q.content}`}
+                      </Text>
+                      
                       <Text style={styles.statusDate}>
                         {new Date(q.asked_at).toLocaleString()}
                       </Text>
