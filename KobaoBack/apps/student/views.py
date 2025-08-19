@@ -18,6 +18,24 @@ def receive():
     return jsonify({'result': '送信しました'})
 
 
+@student.route('/messages/<string:question_id>', methods=["GET"])
+def get_message_detail(question_id):
+    question = Question.query.get(question_id)
+    if not question:
+        return jsonify({"message": "質問が見つかりません"}), 404
+
+    return jsonify({
+        "id": str(question.id),
+        "content": question.content,
+        "asked_at": question.asked_at.strftime("%Y-%m-%dT%H:%M:%S") if question.asked_at else None,
+        "answer": None,  # 未回答なので常に None
+        "ansed_flag": question.ansed_flag,
+        "stu_id": question.stu_id,
+        "is_read": question.is_read
+    })
+
+
+
 
 @student.route('/messages', methods=["GET"])
 def get_messages():
