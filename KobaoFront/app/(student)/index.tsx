@@ -17,7 +17,13 @@ const Home: React.FC = () => {
   // 返信が来ていない質問の型
   const [questions, setQuestions] = useState<Question[]>([]);
   // 返信が来ているかどうかのフラグ
-  const unreadAnsweredQuestions = questions.filter(q => q.ansed_flag && q.is_read === false);
+  const ansed_flag = questions.some(q => q.ansed_flag);
+  // 回答待ち（未回答）の質問があるかどうか
+  const hasPendingQuestions = questions.some(q => !q.ansed_flag);
+  // 未回答の質問件数
+  const pendingCount = questions.filter(q => !q.ansed_flag).length;
+
+
 
   useEffect(() => {
     fetch("http://127.0.0.1:5000/student/messages")
@@ -37,11 +43,11 @@ const Home: React.FC = () => {
       <View style={styles.listContainer}>
         <ScrollView contentContainerStyle={styles.content}>
           <View style={styles.statusBox}>
-            {unreadAnsweredQuestions.length > 0 ? (
+            {ansed_flag ? (
               <>
                 <Text style={styles.statusTitle}>返信あり！</Text>
                 {questions
-                  .filter((q) => !q.is_read)
+                  .filter(q => q.ansed_flag && !q.is_read)
                   .map((q) => (
                     <View key={q.id} style={styles.questionBlock}>
                       <Text style={styles.statusQuestion}  
@@ -49,10 +55,6 @@ const Home: React.FC = () => {
                        ellipsizeMode="tail"
                       >
                         {`・${q.content}`}
-                      </Text>
-                      
-                      <Text style={styles.statusDate}>
-                        {new Date(q.asked_at).toLocaleString()}
                       </Text>
 
                       <TouchableOpacity
@@ -78,12 +80,14 @@ const Home: React.FC = () => {
 
       {/* ボタン部分 */}
       <View style={styles.buttonContainer}>
+        {hasPendingQuestions && (
         <TouchableOpacity
           style={styles.stnButton}
           onPress={() => router.push("/standby")}
         >
-          <Text style={styles.askButtonText}>回答待ちの質問</Text>
+          <Text style={styles.askButtonText}>回答待ち{pendingCount}件</Text>
         </TouchableOpacity>
+      )}
 
         <TouchableOpacity
           style={styles.askButton}

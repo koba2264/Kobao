@@ -1,4 +1,4 @@
-// app/(student)/question/[id].tsx(回答が来た時の質問詳細画面)
+// app/(student)/questionStandby/[id].tsx(回答来てない時の質問詳細画面)
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -22,20 +22,11 @@ export default function HistoryDetail() {
   useEffect(() => {
     if (!id) return;
 
-    fetch(`http://127.0.0.1:5000/student/answer/${id}`)
+    fetch(`http://127.0.0.1:5000/student/messages/${id}`)
       .then((res) => res.json())
       .then((data: QuestionDetail) => {
         setQuestion(data);
         setLoading(false);
-
-        // 既読でなければ既読更新
-        if (!data.is_read) {
-        fetch(`http://127.0.0.1:5000/student/is_read/${id}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ is_read: true }),
-        }).catch((err) => console.error("既読更新失敗:", err));
-      }
       })
       .catch((err) => {
         console.error("詳細取得エラー:", err);
@@ -68,28 +59,7 @@ export default function HistoryDetail() {
       <View style={styles.card}>
         <Text style={styles.label}>質問内容</Text>
         <Text style={styles.content}>{question.content}</Text>
-
-        <Text style={styles.label}>質問日時</Text>
-        <Text style={styles.date}>
-          {new Date(question.asked_at).toLocaleString()}
-        </Text>
       </View>
-
-      {/* 回答内容 or 未回答メッセージ */}
-      {question.ansed_flag ? (
-        <View style={[styles.card, styles.answerCard]}>
-          <Text style={styles.label}>回答</Text>
-          <Text style={styles.answer}>
-            {question.answer || "（回答は空です）"}
-          </Text>
-        </View>
-      ) : (
-        <View style={[styles.card, styles.noAnswerCard]}>
-          <Text style={styles.label}>回答</Text>
-          <Text style={styles.note}>まだ回答がありません</Text>
-        </View>
-      )}
-
       {/* 戻るボタン */}
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <Text style={styles.backButtonText}>戻る</Text>
