@@ -39,9 +39,9 @@ def login():
     # ユーザーが存在する場合はトークンを作成
     claims = {"role": role}
     # アクセストークンの作成
-    access  = create_access_token(identity=user["id"], additional_claims=claims)
+    access  = create_access_token(identity=id, additional_claims=claims)
     # リフレッシュトークンの作成
-    refresh = create_refresh_token(identity=user["id"], additional_claims=claims)
+    refresh = create_refresh_token(identity=id, additional_claims=claims)
 
     return jsonify({'result': 'success', "access": access, "refresh": refresh, "role": role}), 200
 

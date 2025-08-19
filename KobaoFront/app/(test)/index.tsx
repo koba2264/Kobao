@@ -39,9 +39,6 @@ export default function IndexScreen() {
     }
   };
 
-  useEffect(() => {
-    fetchMessages();
-  }, []);
 
   return (
     <View>
