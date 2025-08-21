@@ -19,10 +19,13 @@ def create_app():
 
     from apps.chatbot import views as chatbot_views
     from apps.teacher import views as teacher_views
+    from apps.administrator import views as administrator_views
 
     app.register_blueprint(chatbot_views.chatbot, url_prefix="/chatbot")
 
     app.register_blueprint(teacher_views.teacher, url_prefix="/teacher")
+
+    app.register_blueprint(administrator_views.administrator, url_prefix="/administrator")
     
     return app
 

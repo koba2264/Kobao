@@ -9,6 +9,12 @@ type Question = {
   id: number;
   title: string;
 };
+
+type TagItem = {
+  id: string;
+  label: string;
+  value: string;
+}
  
 export default function QuestionListScreen() {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -17,9 +23,7 @@ export default function QuestionListScreen() {
  
   const [tagsOpen, setTagsOpen] = useState(false);
   const [tagsValue, setTagsValue] = useState<string[]>([]);
-  const [tagsItems, setTagsItems] = useState([
-    { label: "", value: "" }
-  ]);
+  const [tagsItems, setTagsItems] = useState<TagItem[]>([]);
   
   const select_all_tag = async () =>{
     try {
@@ -28,14 +32,12 @@ export default function QuestionListScreen() {
       headers: {'Content-Type': 'application/json'}
       })
       const data = await response.json();
-      // console.log(data)
-      console.log(data.tag)
-      console.log("bbb")
       // データの受け取り(map)。(tag[値]:any[型])
-      const formattedTags = data.tag.map
+      const formattedTags: TagItem[] = data.tag.map
       ((tag:any) => ({
-        label: tag.tab_name.trim(),
-        value: tag.tab_name.trim(),
+        id: tag.id.toString(),
+        label: tag.tag_name.trim(),
+        value: tag.tag_name.trim()
       }));
       setTagsItems(formattedTags)
     } catch (error) {
@@ -75,13 +77,30 @@ export default function QuestionListScreen() {
     select_all_question();
   }, []);
  
-  const handleAnswerSubmit = () => {
+  const handleAnswerSubmit = async () => {
     if (!answerText || !selectedQuestionId) {
       Alert.alert("入力エラー", "回答内容を入力してください");
       return;
     }
- 
     const selectedQuestion = questions.find(q => q.id === selectedQuestionId);
+    // console.log(tagsValue)
+    console.log(tagsItems)
+    try {
+      const response = await fetch('http://127.0.0.1:5000/teacher/answer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          question_id: selectedQuestionId,
+          answerText: answerText,
+          tagsItems: tagsItems
+        }),
+      });
+    } catch (error) {
+      Alert.alert("エラー", "教師編集中にエラー");
+    }
+ 
  
     Alert.alert(
       "送信完了",

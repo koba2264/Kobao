@@ -32,12 +32,12 @@ export default function QuestionByTagScreen() {
         // データの受け取り(map)。(tag[値]:any[型])
         const formattedTags = data.tag.map
         ((tag:any) => ({
-          label: tag.tab_name.trim(),
-          value: tag.tab_name.trim(),
+          label: tag.tag_name.trim(),
+          value: tag.tag_name.trim(),
         }));
         setTagItems(formattedTags)
       } catch (error) {
-          Alert.alert("エラー", "タグ追加中に問題が発生しました");
+          console.log("error")
       }
     } 
     useEffect(() => {
@@ -59,14 +59,15 @@ export default function QuestionByTagScreen() {
         ((question_tag:any) => ({
           id: question_tag.id,
           title: question_tag.content,
-          tags: [question_tag.tab_name.trim()],
+          tags: [question_tag.tag_name.trim()],
         }));
         setQuestions(Qestions_tag);
         setFilteredQuestions(Qestions_tag);
         console.log(Qestions_tag[0].tags);
         
       } catch (error) {
-        Alert.alert("エラー", "タグ追加中に問題が発生しました");
+        console.log("error")
+
       }
     } 
  
