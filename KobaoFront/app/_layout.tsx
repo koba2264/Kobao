@@ -44,16 +44,9 @@ export default function RootLayout() {
   useEffect(() => {
     // 描画が完了してから router.replace() を実行する
     requestAnimationFrame(() => {
-      const role = 'login'; // 仮のロール。実際は AsyncStorage などから取得
-      if (role === 'test') {
-        router.replace('/(test)');
-      } else if (role === 'student') {
-        router.replace('/(student)');
-      } else if (role === 'teacher') {
-        router.replace('/(teacher)');
-      } else {
-        router.replace('/(auth)/login');
-      }
+      bootstrapSession();
+      // ログイン画面へ遷移
+      router.replace('/(auth)/login');
     });
   }, []);
 

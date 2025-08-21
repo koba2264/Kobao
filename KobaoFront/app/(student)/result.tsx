@@ -1,8 +1,13 @@
+import "react-native-get-random-values";
+import { v4 as uuidv4 } from "uuid";
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, ActivityIndicator, StyleSheet, ScrollView, Pressable, useColorScheme
 } from 'react-native';
+
+
+
 // chatbotからの返答用
 type QuestionAnswer = {
   id: number;
@@ -13,6 +18,10 @@ export default function ResultScreen() {
 
   // 入力されたテキスト
   const [text, setText] = useState('');
+  
+  // UUIDの生成
+  const id = uuidv4();
+  console.log(id);
 
   // chatbotからの返答されたテキストのリスト
   const [reply, setReply] = useState<QuestionAnswer[] | null>(null);
@@ -28,7 +37,7 @@ export default function ResultScreen() {
   const sendTextToFlask = () => {
     router.push({
       pathname: '/(student)/sendTeacher',
-      params: { message },
+      params: { message, id },
     });
   };
 

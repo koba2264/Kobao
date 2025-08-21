@@ -47,10 +47,7 @@ export default function IndexScreen() {
         setPassword('');
         Alert.alert('ログイン失敗', 'ID またはパスワードが間違っています。');
       }
-    } catch (err) {
-      console.error(err);
-      Alert.alert('通信エラー', 'サーバーに接続できませんでした。');
-    }
+   }
   };
 
   return (

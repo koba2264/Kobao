@@ -91,5 +91,7 @@ def logout():
 @auth.get("/me")
 @jwt_required()
 def me():
+    if request.method == 'OPTIONS':
+        return '', 200
     # 誰のトークンか（identity）と、追加クレーム（role）にアクセス
     return jsonify({"user_id": get_jwt_identity(), "role": get_jwt().get("role")})
