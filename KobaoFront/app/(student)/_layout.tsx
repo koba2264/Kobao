@@ -6,15 +6,14 @@ export default function TabLayout() {
   const pathname = usePathname();
   const colorScheme = useColorScheme();
 
-  const isDark = colorScheme === "dark";
+  const isDark = colorScheme === "dark" ? true : false;
 
   return (
 
-    <View style={[styles.container, { backgroundColor: isDark ? "#000000" : "#fff" }]}>
+    <View style={[styles.container, { backgroundColor: isDark ? "#000000" : "#fbfbfb" }]}>
       {/* ヘッダー */}
-      <View style={[styles.header, { backgroundColor: isDark ? "#FF8C00" : "#FF8C00" }]}>
-        <Text style={[styles.headerTitle, { color: isDark ? "#fff" : "#fff" }]}>KOBAO</Text>
-
+      <View style={[styles.header, { backgroundColor: "#FF8C00" }]}>
+        <Text style={[styles.headerTitle, { color: "#fff" }]}>KOBAO</Text>
       </View>
 
       <Tabs
@@ -27,7 +26,10 @@ export default function TabLayout() {
       </Tabs>
 
       {/* フッター */}
-      <View style={[styles.footer, { backgroundColor: isDark ? "#000000" : "#fff", borderColor: isDark ? "#555" : "#ccc" }]}>
+      <View style={[
+        styles.footer,
+        { backgroundColor: isDark ? "#000" : "#fff", borderColor: isDark ? "#555" : "#ccc" }
+      ]}>
         <TouchableOpacity
           style={[
             styles.footerItem,
