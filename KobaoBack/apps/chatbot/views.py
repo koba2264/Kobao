@@ -1,8 +1,6 @@
 from flask import Blueprint, jsonify, request
 from qdrant_client import QdrantClient, models
 from sentence_transformers import SentenceTransformer
-
-
 chatbot = Blueprint(
     "chatbot",
     __name__,
