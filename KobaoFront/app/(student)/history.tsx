@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, useColorScheme } from 'react-native';
 import { useRouter } from 'expo-router';
-
 
 type Message = {
   id: string;
@@ -12,6 +11,9 @@ type Message = {
 export default function HistoryScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
   const router = useRouter();
+  const scheme = useColorScheme();
+  const isDark = scheme === "dark";
+  const styles = getStyles(isDark);
 
   useEffect(() => {
     fetch('http://127.0.0.1:5000/student/messages')
@@ -25,7 +27,7 @@ export default function HistoryScreen() {
   function goDetail(id: string): void {
     router.push({
       pathname: '/(student)/historyDetaile/[id]',
-      params: { id},
+      params: { id },
     });
   }
 
@@ -33,50 +35,48 @@ export default function HistoryScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>過去の質問一覧</Text>
       <FlatList
-      data={messages.filter((msg) => msg.is_read)}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <TouchableOpacity style={styles.card} onPress={() => goDetail(item.id)}>
-          <Text style={styles.message}>{item.content}</Text>
-        </TouchableOpacity>
-      )}
-      ListEmptyComponent={
-        <Text style={styles.emptyText}>まだ既読の質問はありません</Text>
-      }
-    />
-
+        data={messages.filter((msg) => msg.is_read)}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity style={styles.card} onPress={() => goDetail(item.id)}>
+            <Text style={styles.message}>{item.content}</Text>
+          </TouchableOpacity>
+        )}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>まだ既読の質問はありません</Text>
+        }
+      />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#FF8C00',
-  },
+const getStyles = (isDark: boolean) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 16,
+      backgroundColor: isDark ? '#121212' : '#fff',
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      marginBottom: 16,
+      color: isDark ? '#FFA500' : '#FF8C00',
+    },
     emptyText: {
-    textAlign: 'center',
-    marginTop: 50,
-    fontSize: 16,
-    color: '#aaa',
-  },
-
-  card: {
-    backgroundColor: '#FFE4B5',
-    padding: 12,
-    marginBottom: 12,
-    borderRadius: 10,
-  },
-  date: {
-    fontSize: 12,
-    color: '#888',
-    marginBottom: 4,
-  },
-  message: {
-    fontSize: 16,
-    color: '#333',
-  },
-});
+      textAlign: 'center',
+      marginTop: 50,
+      fontSize: 16,
+      color: isDark ? '#888' : '#aaa',
+    },
+    card: {
+      backgroundColor: isDark ? '#333' : '#FFE4B5',
+      padding: 12,
+      marginBottom: 12,
+      borderRadius: 10,
+    },
+    message: {
+      fontSize: 16,
+      color: isDark ? '#fff' : '#333',
+    },
+  });
