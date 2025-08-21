@@ -30,7 +30,7 @@ class LocalConfig(BaseConfig):
     JWT_TOKEN_LOCATION = ["headers"]
 
 class TestingConfig(BaseConfig):
-    SQLALCHEMY_DATABASE_URI = F"sqlite:///{basedir / 'testing.sqlite'}"
+    SQLALCHEMY_DATABASE_URI ='postgresql+psycopg2://postgres:Takuhaya1103@localhost:5432/kobao'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # CSRF対策のON/OFF
     WTF_CSRF_ENABLED = False

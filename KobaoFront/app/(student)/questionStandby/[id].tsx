@@ -25,20 +25,11 @@ export default function HistoryDetail() {
   useEffect(() => {
     if (!id) return;
 
-    fetch(`http://127.0.0.1:5000/student/answer/${id}`)
+    fetch(`http://127.0.0.1:5000/student/messages/${id}`)
       .then((res) => res.json())
       .then((data: QuestionDetail) => {
         setQuestion(data);
         setLoading(false);
-
-        // 既読でなければ既読更新
-        if (!data.is_read) {
-          fetch(`http://127.0.0.1:5000/student/is_read/${id}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ is_read: true }),
-          }).catch((err) => console.error("既読更新失敗:", err));
-        }
       })
       .catch((err) => {
         console.error("詳細取得エラー:", err);
@@ -67,29 +58,11 @@ export default function HistoryDetail() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* 質問内容 */}
       <View style={styles.card}>
         <Text style={styles.label}>質問内容</Text>
         <Text style={styles.content}>{question.content}</Text>
-
-        <Text style={styles.label}>質問日時</Text>
-        <Text style={styles.date}>{new Date(question.asked_at).toLocaleString()}</Text>
       </View>
 
-      {/* 回答内容 or 未回答メッセージ */}
-      {question.ansed_flag ? (
-        <View style={[styles.card, styles.answerCard]}>
-          <Text style={styles.label}>回答</Text>
-          <Text style={styles.answer}>{question.answer || "（回答は空です）"}</Text>
-        </View>
-      ) : (
-        <View style={[styles.card, styles.noAnswerCard]}>
-          <Text style={styles.label}>回答</Text>
-          <Text style={styles.note}>まだ回答がありません</Text>
-        </View>
-      )}
-
-      {/* 戻るボタン */}
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <Text style={styles.backButtonText}>戻る</Text>
       </TouchableOpacity>
@@ -110,16 +83,6 @@ const getStyles = (isDark: boolean) =>
       borderRadius: 12,
       marginBottom: 20,
     },
-    answerCard: {
-      backgroundColor: isDark ? "#444" : "#FFF4E0",
-      borderColor: isDark ? "#FFA500" : "#FF8C00",
-      borderWidth: 1,
-    },
-    noAnswerCard: {
-      backgroundColor: isDark ? "#222" : "#F5F5F5",
-      borderColor: isDark ? "#888" : "#AAA",
-      borderWidth: 1,
-    },
     label: {
       fontSize: 14,
       fontWeight: "bold",
@@ -129,21 +92,6 @@ const getStyles = (isDark: boolean) =>
     content: {
       fontSize: 16,
       color: isDark ? "#fff" : "#333",
-      marginTop: 4,
-    },
-    date: {
-      fontSize: 13,
-      color: isDark ? "#ccc" : "#666",
-      marginTop: 4,
-    },
-    answer: {
-      fontSize: 15,
-      color: isDark ? "#fff" : "#333",
-      marginTop: 4,
-    },
-    note: {
-      fontSize: 14,
-      color: isDark ? "#aaa" : "#888",
       marginTop: 4,
     },
     backButton: {

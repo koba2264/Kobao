@@ -9,12 +9,15 @@ student = Blueprint(
 
 @student.route('/receive', methods=["POST"])
 def receive():
+    output = "受信しました"
+    print(output)
     data = request.get_json()
     message = data.get('message')
-    new_msg = Question(message=message)
+    stu_id = "test"
+    new_msg = Question(content=message,stu_id=stu_id, ansed_flag=False, is_read=False)
     db.session.add(new_msg)
     db.session.commit()
-    print(data.get('message'))
+    print(data.get('content'))
     return jsonify({'result': '送信しました'})
 
 
