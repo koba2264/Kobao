@@ -1,10 +1,13 @@
+
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, Alert, useColorScheme } from 'react-native';
 import { router } from 'expo-router';
 
 export default function IndexScreen() {
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
 
   const loginFlask = async () => {
     try {
@@ -32,27 +35,43 @@ export default function IndexScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>KOBAO</Text>
+    <View style={[styles.container, { backgroundColor: isDark ? '#000000ff' : '#fff' }]}>
+      <View style={[styles.header, { backgroundColor: isDark ? '#FF8C00' : '#ffffffff' }]}>
+        <Text style={[styles.headerTitle, { color: isDark ? '#ffffffff' : '#fff' }]}>KOBAO</Text>
       </View>
 
       <View style={styles.form}>
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: isDark ? '#222' : '#fff8f0',
+              color: isDark ? '#fff' : '#000',
+              borderColor: isDark ? '#888' : '#FF8C00',
+            },
+          ]}
           placeholder="ID"
+          placeholderTextColor={isDark ? '#aaa' : '#666'}
           value={id}
           onChangeText={setId}
           keyboardType="default"
         />
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            {
+              backgroundColor: isDark ? '#222' : '#fff8f0',
+              color: isDark ? '#fff' : '#000',
+              borderColor: isDark ? '#888' : '#FF8C00',
+            },
+          ]}
           placeholder="パスワード"
+          placeholderTextColor={isDark ? '#aaa' : '#666'}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
         />
-        <Pressable style={styles.button} onPress={loginFlask}>
+        <Pressable style={[styles.button, { backgroundColor: isDark ? '#ff981a' : '#ff981aff' }]} onPress={loginFlask}>
           <Text style={styles.buttonText}>ログイン</Text>
         </Pressable>
       </View>
@@ -63,17 +82,14 @@ export default function IndexScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   header: {
     paddingTop: 40,
     paddingBottom: 10,
     paddingHorizontal: 16,
-    backgroundColor: '#FF8C00',
   },
   headerTitle: {
     fontSize: 40,
-    color: '#fff',
     fontWeight: 'bold',
   },
   form: {
@@ -83,17 +99,14 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 50,
-    borderColor: '#FF8C00',
     borderWidth: 1,
     borderRadius: 12,
     paddingHorizontal: 16,
     marginBottom: 16,
     fontSize: 18,
-    backgroundColor: '#fff8f0',
   },
   button: {
     width: "100%",
-    backgroundColor: "#ff981aff",
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: "center",
@@ -105,3 +118,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
