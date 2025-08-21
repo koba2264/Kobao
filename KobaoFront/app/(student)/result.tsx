@@ -1,21 +1,21 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { 
-  View, Text, ActivityIndicator, StyleSheet, ScrollView, Pressable, useColorScheme 
+import {
+  View, Text, ActivityIndicator, StyleSheet, ScrollView, Pressable, useColorScheme
 } from 'react-native';
 // chatbotからの返答用
-type Question = {
+type QuestionAnswer = {
   id: number;
-  text: string; 
-}
-
+  question: string;
+  answer: string;
+};
 export default function ResultScreen() {
 
   // 入力されたテキスト
   const [text, setText] = useState('');
 
   // chatbotからの返答されたテキストのリスト
-  const [reply, setReply] = useState<Question[] | null>(null);
+  const [reply, setReply] = useState<QuestionAnswer[] | null>(null);
   // ルーターからのパラメータ取得
   const { message } = useLocalSearchParams();
   const scheme = useColorScheme(); // "light" or "dark"
@@ -32,7 +32,6 @@ export default function ResultScreen() {
     });
   };
 
-
   // Flask API からの返答を取得
   useEffect(() => {
     setReply(null);
@@ -44,10 +43,8 @@ export default function ResultScreen() {
       body: JSON.stringify({ message: message }),
     })
       .then(res => res.json())
-      .then((data: Question[]) => {
-        setReply(data);
-      })
-      .catch(() => setReply([{id:1,text:'エラーが発生しました'}]));
+      .then((data: QuestionAnswer[]) => setReply(data))
+      .catch(() => setReply([{ id: 1, question: 'エラー', answer: 'エラーが発生しました' }]));
   }, [message]);
 
   if (!reply) {
@@ -70,23 +67,26 @@ export default function ResultScreen() {
               <Text style={styles.userMessage}>{message}</Text>
             </View>
           </View>
+        </View>
 
-
+        {/* KOBAOの返答 */}
         {/* KOBAOの返答 */}
         <View style={styles.messageBlockLeft}>
           <Text style={styles.name}>KOBAO</Text>
           <View style={styles.botMessageContainer}>
-            {/* 返答のリストを表示 */}
-
             {(reply && reply.length > 0) ? (
-              reply.map((re) => (
-              <Text key={re.id} style={styles.botMessage}>{re.text}</Text>
+              reply.map((qa) => (
+                <View key={qa.id} style={styles.qaBlock}>
+                  <Text style={styles.botQuestion}>Q: {qa.question}</Text>
+                  <Text style={styles.botAnswer}>A: {qa.answer}</Text>
+                </View>
               ))
             ) : (
               <Text style={styles.botMessage}>回答がありません</Text>
             )}
           </View>
         </View>
+
       </ScrollView>
 
       {/* 送信ボタン */}
@@ -168,4 +168,18 @@ const getStyles = (isDark: boolean) =>
       fontSize: 20,
       fontWeight: 'bold',
     },
+    qaBlock: {
+      marginBottom: 12,
+    },
+    botQuestion: {
+      fontWeight: "bold",
+      fontSize: 16,
+      color: isDark ? "#fff" : "#333",
+      marginBottom: 4,
+    },
+    botAnswer: {
+      fontSize: 16,
+      color: isDark ? "#ccc" : "#555",
+    },
+
   });

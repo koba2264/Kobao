@@ -12,15 +12,16 @@ export default function ResultScreen() {
   const isDark = scheme === "dark";
   const styles = getStyles(isDark);
 
-    const onSendPress = async () => {
-        try {
-            const response = await fetch("http://127.0.0.1:5000/student/receive", {  
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ message: displayMessage }),
-            });
+  const onSendPress = async () => {
+      try {
+          const response = await fetch("http://127.0.0.1:5000/student/receive", {  
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ message: displayMessage }),
+          });
+
 
             if (response.ok) {
                               Alert.alert(
@@ -42,6 +43,7 @@ export default function ResultScreen() {
         }
     };
   
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>質問内容</Text>
