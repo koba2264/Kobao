@@ -17,11 +17,8 @@ class BaseConfig:
 class LocalConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = True
-<<<<<<< HEAD
     # qDrantのurl
     QDRANT_URL = "http://localhost:6333"
-
-=======
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
     
     # jwt認証用
@@ -33,7 +30,7 @@ class LocalConfig(BaseConfig):
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     # トークンの取得場所
     JWT_TOKEN_LOCATION = ["headers"]
->>>>>>> 6f1a9e4d1fee508896b6e963d8b1d7e50801721e
+
 
 class TestingConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = F"sqlite:///{basedir / 'testing.sqlite'}"
