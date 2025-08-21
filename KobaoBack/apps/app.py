@@ -7,9 +7,8 @@ from flask_jwt_extended import JWTManager
 
 db = SQLAlchemy()
 
-def create_app():
+def create_app(config_key):
     app = Flask(__name__)
-    config_key = 'testing'
 
     app.config.from_object(config[config_key])
     # 他サイトからのリクエストを受け取れるようにしている
@@ -18,8 +17,6 @@ def create_app():
     # jwt認証用
     JWTManager(app)
     
-    db.init_app(app)
-
     db.init_app(app)
 
     from apps.chatbot import views as chatbot_views
@@ -35,7 +32,6 @@ def create_app():
 
     from apps.auth import views as auth_views
 
-    app.register_blueprint(chatbot_views.chatbot, url_prefix="/chatbot")
     app.register_blueprint(auth_views.auth, url_prefix="/auth")
 
     from apps.student import views as student_views
@@ -44,7 +40,6 @@ def create_app():
 
     with app.app_context():
         db.create_all()
-
     
     return app
 

@@ -37,7 +37,7 @@ class Teacher(db.Model):
 
 class Question(db.Model):
     __tablename__ = 'questions'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(UUID(as_uuid=True), primary_key=True)
     content = db.Column(db.Text, nullable=False)
     asked_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, nullable=False)
     ansed_flag = db.Column(db.Boolean, default=False, nullable=False)
