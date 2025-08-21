@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useRouter } from 'expo-router';
+import {useFocusEffect,useRouter } from 'expo-router';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, useColorScheme } from 'react-native';
 
 const Home: React.FC = () => {
@@ -19,12 +19,16 @@ const Home: React.FC = () => {
 
   const [questions, setQuestions] = useState<Question[]>([]);
 
-  useEffect(() => {
-    fetch("http://127.0.0.1:5000/student/messages")
-      .then(res => res.json())
-      .then((data: Question[]) => setQuestions(data))
-      .catch(err => console.error("APIエラー:", err));
-  }, []);
+    useFocusEffect(
+    React.useCallback(() => {
+      fetch("http://127.0.0.1:5000/student/messages")
+        .then(res => res.json())
+        .then((data: Question[]) => {
+          setQuestions(data);
+        })
+        .catch(err => console.error("APIエラー:", err));
+    }, [])
+  );
 
   return (
     <View style={styles.container}>
