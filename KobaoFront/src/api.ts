@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getTokens, saveTokens, clearTokens } from "./token";
 
-// 認証のアクセス先
+// flaskのアクセス先
 export const api = axios.create({
   // baseURL: "https://ef3e05a1690a.ngrok-free.app",
   baseURL: "http://127.0.0.1:5000",
