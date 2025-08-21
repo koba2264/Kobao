@@ -1,16 +1,39 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
 
 export default function ResultScreen() {
     const { message } = useLocalSearchParams();
     const displayMessage = Array.isArray(message) ? message[0] : message ?? '';
 
-    const onSendPress = () => {
-        router.push({
-            pathname: '/(student)/sendTeacher',
-            params: { message: displayMessage },
-        });
+    const onSendPress = async () => {
+        try {
+            const response = await fetch("http://127.0.0.1:5000/student/receive", {  
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ message: displayMessage }),
+            });
+
+            if (response.ok) {
+                              Alert.alert(
+                    "送信完了",
+                    "先生に質問を送信しました！",
+                    [
+                        {
+                            text: "OK",
+                            onPress: () => router.replace("/chat"), // chat画面に遷移
+                        },
+                    ]
+                );
+            } else {
+                Alert.alert("エラー", "送信に失敗しました");
+            }
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            Alert.alert("通信エラー", errorMessage);
+        }
     };
 
     return (
@@ -35,7 +58,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         padding: 20,
-        justifyContent: 'space-between', 
+        justifyContent: 'space-between',
     },
     title: {
         fontSize: 28,
@@ -45,7 +68,7 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     messageContainer: {
-        flex: 0.7,      
+        flex: 0.7,
         backgroundColor: '#ff8c0834',
         borderRadius: 16,
         padding: 12,
