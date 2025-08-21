@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
+
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, useColorScheme } from 'react-native';
+
+import { useFocusEffect } from '@react-navigation/native';
+
 import { useRouter } from 'expo-router';
 
 type Message = {
@@ -15,14 +19,14 @@ export default function HistoryScreen() {
   const isDark = scheme === "dark";
   const styles = getStyles(isDark);
 
-  useEffect(() => {
-    fetch('http://127.0.0.1:5000/student/messages')
-      .then((response) => response.json())
-      .then((data) => setMessages(data))
-      .catch((error) => {
-        console.error('Failed to fetch messages:', error);
-      });
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetch('http://127.0.0.1:5000/student/messages')
+        .then((response) => response.json())
+        .then((data: Message[]) => setMessages(data))
+        .catch((error) => console.error('Failed to fetch messages:', error));
+    }, [])
+  );
 
   function goDetail(id: string): void {
     router.push({
@@ -46,6 +50,8 @@ export default function HistoryScreen() {
           <Text style={styles.emptyText}>まだ既読の質問はありません</Text>
         }
       />
+
+     
     </View>
   );
 }

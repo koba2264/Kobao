@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
+
 import { 
   View, Text, StyleSheet, ScrollView, Pressable, Alert, useColorScheme 
 } from 'react-native';
@@ -11,16 +12,35 @@ export default function ResultScreen() {
   const isDark = scheme === "dark";
   const styles = getStyles(isDark);
 
-  const onSendPress = async () => {
-    try {
-      const response = await fetch("http://127.0.0.1:5000/student/receive", {  
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message: displayMessage }),
-      });
+    const onSendPress = async () => {
+        try {
+            const response = await fetch("http://127.0.0.1:5000/student/receive", {  
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ message: displayMessage }),
+            });
 
+            if (response.ok) {
+                              Alert.alert(
+                    "送信完了",
+                    "先生に質問を送信しました！",
+                    [
+                        {
+                            text: "OK",
+                            onPress: () => router.replace("/chat"), // chat画面に遷移
+                        },
+                    ]
+                );
+            } else {
+                Alert.alert("エラー", "送信に失敗しました");
+            }
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            Alert.alert("通信エラー", errorMessage);
+        }
+    };
       if (response.ok) {
         Alert.alert(
           "送信完了",

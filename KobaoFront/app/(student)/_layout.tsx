@@ -9,10 +9,12 @@ export default function TabLayout() {
   const isDark = colorScheme === "dark";
 
   return (
+
     <View style={[styles.container, { backgroundColor: isDark ? "#000000" : "#fff" }]}>
       {/* ヘッダー */}
       <View style={[styles.header, { backgroundColor: isDark ? "#FF8C00" : "#FF8C00" }]}>
         <Text style={[styles.headerTitle, { color: isDark ? "#fff" : "#fff" }]}>KOBAO</Text>
+
       </View>
 
       <Tabs
@@ -30,6 +32,7 @@ export default function TabLayout() {
           style={[
             styles.footerItem,
             (pathname === '/' || pathname === '/standby' || pathname.startsWith('/question/') || pathname.startsWith('/questionStandby/')) && styles.activeItem,
+
           ]}
           onPress={() => router.push('/')}
         >
@@ -63,6 +66,7 @@ export default function TabLayout() {
         <TouchableOpacity
           style={[
             styles.footerItem,
+
             (pathname === '/history' || pathname.startsWith('/historyDetaile/')) && styles.activeItem,
           ]}
           onPress={() => router.push('/history')}

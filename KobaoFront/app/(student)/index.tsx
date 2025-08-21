@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, useColorScheme } from 'react-native';
 
@@ -17,29 +18,36 @@ const Home: React.FC = () => {
   };
 
   const [questions, setQuestions] = useState<Question[]>([]);
-  const ansed_flag = questions.some(q => q.ansed_flag);
+
+  // 未読の返信があるかどうか
+  const hasUnreadAnswers = questions.some(q => q.ansed_flag && !q.is_read);
+  // 回答待ち（未回答）の質問があるかどうか
   const hasPendingQuestions = questions.some(q => !q.ansed_flag);
   const pendingCount = questions.filter(q => !q.ansed_flag).length;
+  // 回答済みかつ未読のものだけ
+  const answeredCount = questions.filter(q => q.ansed_flag && !q.is_read);
 
-  useEffect(() => {
+
+  useFocusEffect(
+  React.useCallback(() => {
     fetch("http://127.0.0.1:5000/student/messages")
       .then(res => res.json())
       .then((data: Question[]) => {
         setQuestions(data);
       })
-      .catch(err => {
-        console.error("APIエラー:", err);
-      });
-  }, []);
+      .catch(err => console.error("APIエラー:", err));
+  }, [])
+);
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? "#000" : "#fff" }]}>
       <View style={styles.listContainer}>
         <ScrollView contentContainerStyle={styles.content}>
           <View style={[styles.statusBox, { backgroundColor: isDark ? "#222" : "#ff8c0834" }]}>
-            {ansed_flag ? (
+            {hasUnreadAnswers ? (
               <>
-                <Text style={[styles.statusTitle, { color: isDark ? "#fff" : "#000" }]}>返信あり！</Text>
+                <Text style={[styles.statusTitle, { color: isDark ? "#fff" : "#000" }]}>新着{answeredCount.length}件</Text>
+
                 {questions
                   .filter(q => q.ansed_flag && !q.is_read)
                   .map((q) => (
