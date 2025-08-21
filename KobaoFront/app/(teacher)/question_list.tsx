@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useCallback } from "react";
 import { View,Text,Button,FlatList,StyleSheet,TextInput,Alert,TouchableOpacity,Modal,} from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useRouter } from "expo-router";
 import { nanoid } from "nanoid";
+import { useFocusEffect } from "@react-navigation/native";
 
  
 type Question = {
@@ -69,13 +70,16 @@ export default function QuestionListScreen() {
         title: question.content,
       }));
       setQuestions(Qestions);
+      
     } catch (error) {
         Alert.alert("エラー", "タグ追加中に問題が発生しました");
     }
   } 
-  useEffect(() => {
-    select_all_question();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      select_all_question();
+    }, [])
+  );
  
   const handleAnswerSubmit = async () => {
     if (!answerText || !selectedQuestionId) {
@@ -97,6 +101,7 @@ export default function QuestionListScreen() {
           tagsItems: tagsItems
         }),
       });
+      setQuestions(prev => prev.filter(q => q.id !== selectedQuestionId));
     } catch (error) {
       Alert.alert("エラー", "教師編集中にエラー");
     }
@@ -114,10 +119,7 @@ export default function QuestionListScreen() {
  
   const handleAddTag = () => {
     const callbackId = nanoid();
-    (globalThis as any).__tagAddCallbacks[callbackId] = (newTag: string) => {
-      if (!tagsItems.some(tag => tag.value === newTag)) {
-        setTagsItems(prev => [...prev, { label: newTag, value: newTag }]);
-      }
+    (globalThis as any).__tagAddCallbacks[callbackId] = () => {
       select_all_tag();
     };
  
