@@ -2,7 +2,6 @@ from flask import Flask
 from apps.config import config
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 
 db = SQLAlchemy()
@@ -21,26 +20,23 @@ def create_app(config_key):
     db.init_app(app)
 
     from apps.chatbot import views as chatbot_views
-
     from apps.teacher import views as teacher_views
     from apps.administrator import views as administrator_views
-
-    app.register_blueprint(chatbot_views.chatbot, url_prefix="/chatbot")
+    from apps.auth import views as auth_views
+    from apps.student import views as student_views
 
     app.register_blueprint(teacher_views.teacher, url_prefix="/teacher")
 
     app.register_blueprint(administrator_views.administrator, url_prefix="/administrator")
 
-    from apps.auth import views as auth_views
-
     app.register_blueprint(auth_views.auth, url_prefix="/auth")
 
-    from apps.student import views as student_views
 
     app.register_blueprint(student_views.student, url_prefix="/student")
 
     with app.app_context():
         db.create_all()
-    
+
+
     return app
 

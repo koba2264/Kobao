@@ -5,6 +5,7 @@ import { View, Text, FlatList, StyleSheet, TouchableOpacity, useColorScheme } fr
 import { useFocusEffect } from '@react-navigation/native';
 
 import { useRouter } from 'expo-router';
+import { api } from '@/src/api';
 
 type Message = {
   id: string;
@@ -21,7 +22,7 @@ export default function HistoryScreen() {
 
   useFocusEffect(
     React.useCallback(() => {
-      fetch('http://127.0.0.1:5000/student/messages')
+      fetch(`${api.defaults.baseURL}/student/messages`)
         .then((response) => response.json())
         .then((data: Message[]) => setMessages(data))
         .catch((error) => console.error('Failed to fetch messages:', error));

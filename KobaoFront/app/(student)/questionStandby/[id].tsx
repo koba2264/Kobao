@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useColorScheme } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { api } from "@/src/api";
 
 type QuestionDetail = {
   id: string;
@@ -25,7 +26,7 @@ export default function HistoryDetail() {
   useEffect(() => {
     if (!id) return;
 
-    fetch(`http://127.0.0.1:5000/student/messages/${id}`)
+    fetch(`${api.defaults.baseURL}/student/messages/${id}`)
       .then((res) => res.json())
       .then((data: QuestionDetail) => {
         setQuestion(data);

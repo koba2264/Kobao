@@ -30,7 +30,7 @@ export default function IndexScreen() {
             alert('ID またはパスワードが間違っています。');
         }
     } catch { 
-      const response = await fetch('http://127.0.0.1:5000/auth/login', {
+      const response = await fetch(`${api.defaults.baseURL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, password }),
@@ -47,7 +47,7 @@ export default function IndexScreen() {
         setPassword('');
         Alert.alert('ログイン失敗', 'ID またはパスワードが間違っています。');
       }
-   }
+    }
   };
 
   return (

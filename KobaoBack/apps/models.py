@@ -60,7 +60,7 @@ class Answer(db.Model):
 
 class QA(db.Model):
     __tablename__ = 'qa'
-    que_id = db.Column(db.Integer, db.ForeignKey('questions.id', ondelete='CASCADE'), primary_key=True)
+    que_id = db.Column(UUID(as_uuid=True), db.ForeignKey('questions.id', ondelete='CASCADE'), primary_key=True)
     ans_id = db.Column(UUID(as_uuid=True), db.ForeignKey('answer.id', ondelete='CASCADE'), primary_key=True)
 
 
