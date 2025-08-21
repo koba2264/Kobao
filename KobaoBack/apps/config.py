@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 # config.pyの親フォルダ(apps)の親フォルダ(flaskbook)をベースフォルダに設定
 basedir = Path(__file__).parent.parent
@@ -14,12 +15,25 @@ class BaseConfig:
 
 # 個別の設定
 class LocalConfig(BaseConfig):
-    SQLALCHEMY_DATABASE_URI = F"sqlite:///{basedir / 'local.sqlite'}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = True
+<<<<<<< HEAD
     # qDrantのurl
     QDRANT_URL = "http://localhost:6333"
 
+=======
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+    
+    # jwt認証用
+    # .envファイルから秘密鍵を取得
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+    # アクセストークンの有効期限
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=30)
+    # リフレッシュトークンの有効期限
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
+    # トークンの取得場所
+    JWT_TOKEN_LOCATION = ["headers"]
+>>>>>>> 6f1a9e4d1fee508896b6e963d8b1d7e50801721e
 
 class TestingConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = F"sqlite:///{basedir / 'testing.sqlite'}"
@@ -27,8 +41,13 @@ class TestingConfig(BaseConfig):
     # CSRF対策のON/OFF
     WTF_CSRF_ENABLED = False
 
+class PostgresConfig(BaseConfig):
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
 # 辞書にマッピング
 config = {
     "testing" : TestingConfig,
     "local" : LocalConfig,
+    "postgres":PostgresConfig,
 }
