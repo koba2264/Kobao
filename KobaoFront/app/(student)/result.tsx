@@ -71,20 +71,20 @@ export default function ResultScreen() {
             </View>
           </View>
 
+          {/* KOBAOの返答 */}
+          <View style={styles.messageBlockLeft}>
+            <Text style={styles.name}>KOBAO</Text>
+            <View style={styles.botMessageContainer}>
+              {/* 返答のリストを表示 */}
 
-        {/* KOBAOの返答 */}
-        <View style={styles.messageBlockLeft}>
-          <Text style={styles.name}>KOBAO</Text>
-          <View style={styles.botMessageContainer}>
-            {/* 返答のリストを表示 */}
-
-            {(reply && reply.length > 0) ? (
-              reply.map((re) => (
-              <Text key={re.id} style={styles.botMessage}>{re.text}</Text>
-              ))
-            ) : (
-              <Text style={styles.botMessage}>回答がありません</Text>
-            )}
+              {(reply && reply.length > 0) ? (
+                reply.map((re) => (
+                  <Text key={re.id} style={styles.botMessage}>{re.text}</Text>
+                ))
+              ) : (
+                <Text style={styles.botMessage}>回答がありません</Text>
+              )}
+            </View>
           </View>
         </View>
       </ScrollView>

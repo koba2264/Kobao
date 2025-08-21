@@ -26,6 +26,7 @@ export default function HistoryDetailScreen() {
     fetch(`http://127.0.0.1:5000/student/answer/${id}`)
       .then(res => res.json())
       .then((data: QuestionDetail) => {
+        console.log("APIレスポンス", data);
         setQuestion(data);
         setLoading(false);
       })
