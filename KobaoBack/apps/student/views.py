@@ -9,13 +9,15 @@ student = Blueprint(
 
 @student.route('/receive', methods=["POST"])
 def receive():
+    output = "受信しました"
+    print(output)
     data = request.get_json()
     message = data.get('message')
-    stu_id = 'S000001'  # 仮の学生ID、実際には認証情報から取得するべき
+    stu_id = "test"
     new_msg = Question(content=message,stu_id=stu_id, ansed_flag=False, is_read=False)
     db.session.add(new_msg)
     db.session.commit()
-    print(data.get('message'))
+    print(data.get('content'))
     return jsonify({'result': '送信しました'})
 
 
