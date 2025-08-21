@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
+import { api } from '@/src/api';
+import { saveTokens } from '@/src/token';
 
 export default function IndexScreen() {
   const [id, setId] = useState('');
@@ -9,20 +11,15 @@ export default function IndexScreen() {
 
   const loginFlask = async () => {
     try {
-        const response = await fetch('http://127.0.0.1:5000/auth/login', {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ id: id, password: password }),
-        });
+        const res = await api.post("/auth/login", { id, password });
 
-        const data = await response.json();
-        console.log(data);
-        if (data.result === 'success') {
-            if (data.role === 'student') {
+        console.log(res.data);
+        if (res.data.result === 'success') {
+            // トークンを保存
+            await saveTokens(res.data);
+            if (res.data.role === 'student') {
               router.replace('/(student)');
-            } else if (data.role === 'teacher') {
+            } else if (res.data.role === 'teacher') {
               router.replace('/(teacher)');
             }
         } else {
