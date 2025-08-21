@@ -11,7 +11,8 @@ student = Blueprint(
 def receive():
     data = request.get_json()
     message = data.get('message')
-    new_msg = Question(message=message)
+    stu_id = 'S000001'  # 仮の学生ID、実際には認証情報から取得するべき
+    new_msg = Question(content=message,stu_id=stu_id, ansed_flag=False, is_read=False)
     db.session.add(new_msg)
     db.session.commit()
     print(data.get('message'))
