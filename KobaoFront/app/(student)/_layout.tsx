@@ -8,7 +8,7 @@ export default function TabLayout() {
 
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>KOBAO</Text>
       </View>
@@ -24,8 +24,8 @@ export default function TabLayout() {
         <TouchableOpacity
           style={[
             styles.footerItem,
-             (pathname === '/' || pathname === '/standby' || pathname.startsWith('/question/') || pathname.startsWith('/questionStandby/')) && styles.activeItem,
-        
+            (pathname === '/' || pathname === '/standby' || pathname.startsWith('/question/') || pathname.startsWith('/questionStandby/')) && styles.activeItem,
+
           ]}
           onPress={() => router.push('/')}
         >
@@ -51,7 +51,7 @@ export default function TabLayout() {
         <TouchableOpacity
           style={[
             styles.footerItem,
-            pathname === '/history' && styles.activeItem,
+            (pathname === '/history' || pathname.startsWith('/historyDetaile/') ) && styles.activeItem,
           ]}
           onPress={() => router.push('/history')}
         >
@@ -79,6 +79,11 @@ export default function TabLayout() {
   );
 }
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    // paddingTop: 20,
+    paddingBottom: 20,
+  },
   header: {
     paddingTop: 40,
     paddingBottom: 10,
