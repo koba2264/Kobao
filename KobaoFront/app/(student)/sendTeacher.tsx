@@ -22,6 +22,25 @@ export default function ResultScreen() {
                 body: JSON.stringify({ message: displayMessage }),
             });
 
+            if (response.ok) {
+                              Alert.alert(
+                    "送信完了",
+                    "先生に質問を送信しました！",
+                    [
+                        {
+                            text: "OK",
+                            onPress: () => router.replace("/chat"), // chat画面に遷移
+                        },
+                    ]
+                );
+            } else {
+                Alert.alert("エラー", "送信に失敗しました");
+            }
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            Alert.alert("通信エラー", errorMessage);
+        }
+    };
       if (response.ok) {
         Alert.alert(
           "送信完了",
