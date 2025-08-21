@@ -8,7 +8,7 @@ export default function RootLayout() {
   useEffect(() => {
     // 描画が完了してから router.replace() を実行する
     requestAnimationFrame(() => {
-      const role = 'login'; // 仮のロール。実際は AsyncStorage などから取得
+      const role = 'student'; // 仮のロール。実際は AsyncStorage などから取得
 
 
       if (role === 'test') {

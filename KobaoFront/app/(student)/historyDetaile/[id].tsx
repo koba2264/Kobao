@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, ScrollView, Pressable, useColorScheme } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
 type QuestionDetail = {
@@ -15,6 +15,7 @@ type QuestionDetail = {
 export default function HistoryDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const colorScheme = useColorScheme(); // light / dark
 
   const [question, setQuestion] = useState<QuestionDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -41,19 +42,21 @@ export default function HistoryDetailScreen() {
       });
   }, [id]);
 
+  const isDark = colorScheme === "dark";
+
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={[styles.loadingContainer, { backgroundColor: isDark ? "#121212" : "#fff" }]}>
         <ActivityIndicator size="large" color="#FF8C00" />
-        <Text style={{ marginTop: 10 }}>読み込み中...</Text>
+        <Text style={{ marginTop: 10, color: isDark ? "#fff" : "#000" }}>読み込み中...</Text>
       </View>
     );
   }
 
   if (!question) {
     return (
-      <View style={styles.container}>
-        <Text style={styles.note}>データが見つかりません。</Text>
+      <View style={[styles.container, { backgroundColor: isDark ? "#121212" : "#fff" }]}>
+        <Text style={[styles.note, { color: isDark ? "#ccc" : "#888" }]}>データが見つかりません。</Text>
         <Pressable style={styles.backButton} onPress={() => router.push('/(student)/history')}>
           <Text style={styles.backButtonText}>戻る</Text>
         </Pressable>
@@ -62,16 +65,20 @@ export default function HistoryDetailScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <View style={[styles.card, question.ansed_flag ? styles.answerCard : styles.noAnswerCard]}>
-        <Text style={styles.label}>質問</Text>
-        <Text style={styles.content}>{question.content}</Text>
-        <Text style={styles.date}>
+    <ScrollView contentContainerStyle={[styles.container, { backgroundColor: isDark ? "#121212" : "#fff" }]}>
+      <View style={[
+        styles.card, 
+        question.ansed_flag ? styles.answerCard : styles.noAnswerCard,
+        { backgroundColor: isDark ? (question.ansed_flag ? "#333" : "#1E1E1E") : undefined }
+      ]}>
+        <Text style={[styles.label, { color: isDark ? "#FFA500" : "#FF8C00" }]}>質問</Text>
+        <Text style={[styles.content, { color: isDark ? "#fff" : "#333" }]}>{question.content}</Text>
+        <Text style={[styles.date, { color: isDark ? "#aaa" : "#666" }]}>
           {question.asked_at ? new Date(question.asked_at).toLocaleString() : ""}
         </Text>
 
-        <Text style={styles.label}>回答</Text>
-        <Text style={styles.answer}>
+        <Text style={[styles.label, { color: isDark ? "#FFA500" : "#FF8C00" }]}>回答</Text>
+        <Text style={[styles.answer, { color: isDark ? "#fff" : "#333" }]}>
           {question.answer || "まだ回答がありません。"}
         </Text>
       </View>
@@ -87,7 +94,6 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 16,
-    backgroundColor: "#fff",
   },
   loadingContainer: {
     flex: 1,
@@ -96,45 +102,37 @@ const styles = StyleSheet.create({
     paddingTop: 100,
   },
   card: {
-    backgroundColor: "#FFE4B5",
     padding: 16,
     borderRadius: 12,
     marginBottom: 20,
   },
   answerCard: {
-    backgroundColor: "#FFF4E0",
     borderColor: "#FF8C00",
     borderWidth: 1,
   },
   noAnswerCard: {
-    backgroundColor: "#F5F5F5",
     borderColor: "#AAA",
     borderWidth: 1,
   },
   label: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "#FF8C00",
     marginTop: 4,
   },
   content: {
     fontSize: 16,
-    color: "#333",
     marginTop: 4,
   },
   date: {
     fontSize: 13,
-    color: "#666",
     marginTop: 4,
   },
   answer: {
     fontSize: 15,
-    color: "#333",
     marginTop: 4,
   },
   note: {
     fontSize: 14,
-    color: "#888",
     marginTop: 4,
     textAlign: "center",
   },

@@ -1,6 +1,5 @@
-// app/(student)/questionStandby/[id].tsx(回答来てない時の質問詳細画面)
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useColorScheme } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 
 type QuestionDetail = {
@@ -18,6 +17,10 @@ export default function HistoryDetail() {
   const router = useRouter();
   const [question, setQuestion] = useState<QuestionDetail | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const scheme = useColorScheme();
+  const isDark = scheme === "dark";
+  const styles = getStyles(isDark);
 
   useEffect(() => {
     if (!id) return;
@@ -37,7 +40,7 @@ export default function HistoryDetail() {
   if (loading) {
     return (
       <View style={styles.container}>
-        <Text>読み込み中...</Text>
+        <Text style={styles.content}>読み込み中...</Text>
       </View>
     );
   }
@@ -45,7 +48,7 @@ export default function HistoryDetail() {
   if (!question) {
     return (
       <View style={styles.container}>
-        <Text>質問データが見つかりませんでした。</Text>
+        <Text style={styles.content}>質問データが見つかりませんでした。</Text>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
           <Text style={styles.backButtonText}>戻る</Text>
         </TouchableOpacity>
@@ -55,12 +58,11 @@ export default function HistoryDetail() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* 質問内容 */}
       <View style={styles.card}>
         <Text style={styles.label}>質問内容</Text>
         <Text style={styles.content}>{question.content}</Text>
       </View>
-      {/* 戻るボタン */}
+
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <Text style={styles.backButtonText}>戻る</Text>
       </TouchableOpacity>
@@ -68,63 +70,39 @@ export default function HistoryDetail() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    padding: 16,
-    backgroundColor: "#fff",
-  },
-  card: {
-    backgroundColor: "#FFE4B5",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 20,
-  },
-  answerCard: {
-    backgroundColor: "#FFF4E0",
-    borderColor: "#FF8C00",
-    borderWidth: 1,
-  },
-  noAnswerCard: {
-    backgroundColor: "#F5F5F5",
-    borderColor: "#AAA",
-    borderWidth: 1,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#FF8C00",
-    marginTop: 4,
-  },
-  content: {
-    fontSize: 16,
-    color: "#333",
-    marginTop: 4,
-  },
-  date: {
-    fontSize: 13,
-    color: "#666",
-    marginTop: 4,
-  },
-  answer: {
-    fontSize: 15,
-    color: "#333",
-    marginTop: 4,
-  },
-  note: {
-    fontSize: 14,
-    color: "#888",
-    marginTop: 4,
-  },
-  backButton: {
-    backgroundColor: "#FF8C00",
-    paddingVertical: 12,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  backButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-});
+const getStyles = (isDark: boolean) =>
+  StyleSheet.create({
+    container: {
+      flexGrow: 1,
+      padding: 16,
+      backgroundColor: isDark ? "#121212" : "#fff",
+    },
+    card: {
+      backgroundColor: isDark ? "#333" : "#FFE4B5",
+      padding: 16,
+      borderRadius: 12,
+      marginBottom: 20,
+    },
+    label: {
+      fontSize: 14,
+      fontWeight: "bold",
+      color: isDark ? "#FFA500" : "#FF8C00",
+      marginTop: 4,
+    },
+    content: {
+      fontSize: 16,
+      color: isDark ? "#fff" : "#333",
+      marginTop: 4,
+    },
+    backButton: {
+      backgroundColor: isDark ? "#FFA500" : "#FF8C00",
+      paddingVertical: 12,
+      borderRadius: 10,
+      alignItems: "center",
+    },
+    backButtonText: {
+      color: "#fff",
+      fontSize: 16,
+      fontWeight: "bold",
+    },
+  });
