@@ -6,6 +6,7 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 
 db = SQLAlchemy()
+jwt = JWTManager()
 
 def create_app(config_key):
     app = Flask(__name__)
@@ -13,9 +14,9 @@ def create_app(config_key):
     app.config.from_object(config[config_key])
     # 他サイトからのリクエストを受け取れるようにしている
     # あとで受け取れるサイトを絞る
-    CORS(app)
+    CORS(app, supports_credentials=True, origins=["http://localhost:8081"])
     # jwt認証用
-    JWTManager(app)
+    jwt.init_app(app)
     
     db.init_app(app)
 

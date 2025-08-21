@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
+import {api} from '@/src/api';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, useColorScheme } from 'react-native';
 
 const Home: React.FC = () => {
@@ -30,7 +31,7 @@ const Home: React.FC = () => {
 
   useFocusEffect(
   React.useCallback(() => {
-    fetch("http://127.0.0.1:5000/student/messages")
+    fetch(`${api.defaults.baseURL}/student/messages`)
       .then(res => res.json())
       .then((data: Question[]) => {
         setQuestions(data);

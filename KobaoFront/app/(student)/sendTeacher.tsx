@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
-
+import {api} from '@/src/api';
 import { 
   View, Text, StyleSheet, ScrollView, Pressable, Alert, useColorScheme 
 } from 'react-native';
@@ -14,7 +14,7 @@ export default function ResultScreen() {
 
   const onSendPress = async () => {
       try {
-          const response = await fetch("http://127.0.0.1:5000/student/receive", {  
+          const response = await fetch(`${api.defaults.baseURL}/student/receive`, {  
               method: "POST",
               headers: {
                   "Content-Type": "application/json",

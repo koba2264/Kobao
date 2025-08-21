@@ -1,3 +1,4 @@
+import { api } from '@/src/api';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -37,7 +38,7 @@ export default function ResultScreen() {
     setReply(null);
     if (!message) return;
 
-    fetch('https://10174dc7873a.ngrok-free.app/chatbot/receive', {
+    fetch(`${api.defaults.baseURL}/chatbot/receive`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: message }),
