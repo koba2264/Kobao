@@ -36,7 +36,7 @@ def insert_tag():
 @teacher.route('/select_question',methods=["GET"])
 def select_question():
   # SQL文
-  sql = sql_text("SELECT * FROM questions")
+  sql = sql_text("SELECT * FROM questions where ansed_flag = false")
   # SQL実行
   result = db.session.execute(sql)
   # 結果を取得
@@ -174,6 +174,7 @@ def insert_student():
 @teacher.route('/answer',methods=["POST"])
 def answer():
   data = request.get_json()
+  question_id = data.get('question_id')
   answerText = data.get('answerText')
   tagsItems = data.get('tagsItems')
   ans_id = uuid.uuid4();
@@ -195,6 +196,17 @@ def answer():
     db.session.execute(sql2,{
       "tag_id":tag["id"],
       "ans_id":ans_id
+    })
+
+    sql3 = sql_text("UPDATE questions SET ansed_flag = true WHERE id = :question_id")
+    db.session.execute(sql3,{
+      "question_id":question_id
+    })
+
+    sql4 = sql_text("UPDATE qa SET ansed_id = :ans_id WHERE que_id = :question_id")
+    db.session.execute(sql4,{
+      "ans_id":ans_id,
+      "question_id":question_id
     })
     
   db.session.commit()
