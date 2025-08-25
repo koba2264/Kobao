@@ -13,7 +13,9 @@ def create_app(config_key):
     app.config.from_object(config[config_key])
     # 他サイトからのリクエストを受け取れるようにしている
     # あとで受け取れるサイトを絞る
-    CORS(app, supports_credentials=True, origins=["http://localhost:8081"])
+    CORS(app, supports_credentials=True, origins=[ "http://localhost:8081",
+        "https://3_cof8m-yuichiroito-8081.exp.direct"
+ ])
     # jwt認証用
     jwt.init_app(app)
     
