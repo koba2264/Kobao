@@ -3,7 +3,12 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { api } from '@/src/api';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, useColorScheme } from 'react-native';
-import { logout } from "@/src/auth";
+import { getStatus, logout } from "@/src/auth";
+
+type Question = {
+    id: string;
+    text: string;
+};
 
 const Home: React.FC = () => {
     const router = useRouter();
@@ -11,51 +16,23 @@ const Home: React.FC = () => {
     const isDark = colorScheme === "dark";
 
 
-    useFocusEffect(
-        React.useCallback(() => {
-            fetch(`${api.defaults.baseURL}/student/messages`)
-                .then(res => res.json())
-                .catch(err => console.error("APIエラー:", err));
-        }, [])
-    );
+    const [questions, setQuestions] = useState<Question[]>([]);
+    const [studentName, setStudentName] = useState<string>("");
+    const [studentID, setStudentID] = useState<string>("");
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // 名前だけ取得
+    useEffect(() => {
+        (async () => {
+        const status = await getStatus();
+        if (status?.user_id) {
+            setStudentID(status.user_id);
+            fetch(`${api.defaults.baseURL}/student/student_name/${status.user_id}`)
+            .then(res => res.json())
+            .then(res => setStudentName(res.name))
+            .catch(() => setStudentName(""));
+        }
+        })();
+    }, []);
 
     return (
         <View style={[styles.container, { backgroundColor: isDark ? "#000" : "#fff" }]}>
@@ -63,6 +40,8 @@ const Home: React.FC = () => {
                 <ScrollView contentContainerStyle={styles.content}>
                     <View style={[styles.statusBox, { backgroundColor: isDark ? "#222" : "#ff8c0834" }]}>
                         <Text style={[styles.statusTitle, { color: isDark ? "#fff" : "#000" }]}>私の情報</Text>
+                        <Text style={[styles.statusTitle, { color: isDark ? "#fff" : "#000" }]}>生徒名:{studentName}</Text>
+                        <Text style={[styles.statusTitle, { color: isDark ? "#fff" : "#000" }]}>ID:{studentID}</Text>
                     </View>
                 </ScrollView>
             </View>
