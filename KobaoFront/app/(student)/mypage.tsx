@@ -45,64 +45,27 @@ const Home: React.FC = () => {
       <View style={styles.listContainer}>
         <ScrollView contentContainerStyle={styles.content}>
           <View style={[styles.statusBox, { backgroundColor: isDark ? "#222" : "#ff8c0834" }]}>
-            {hasUnreadAnswers ? (
+            {(
               <>
                 <Text style={[styles.statusTitle, { color: isDark ? "#fff" : "#000" }]}>新着{answeredCount.length}件</Text>
 
-                {questions
-                  .filter(q => q.ansed_flag && !q.is_read)
-                  .map((q) => (
-                    <View key={q.id} style={styles.questionBlock}>
-                      <Text
-                        style={[styles.statusQuestion, { color: isDark ? "#fff" : "#000" }]}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {`・${q.content}`}
-                      </Text>
-
-                      <TouchableOpacity
-                        style={[styles.teacherButton, { backgroundColor: isDark ? "#ff981a" : "#FF8C00" }]}
-                        onPress={() =>
-                          router.push({
-                            pathname: '/(student)/question/[id]',
-                            params: { id: q.id },
-                          })
-                        }
-                      >
-                        <Text style={styles.teacherButtonText}>
-                          {q.ansed_flag ? "回答を見る" : "詳細を見る"}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  ))}
+           
               </>
-            ) : (
-              <Text style={[styles.statusTitle, { color: isDark ? "#aaa" : "#000" }]}>
-                まだ回答がありません
-              </Text>
             )}
           </View>
         </ScrollView>
       </View>
 
       {/* ボタン部分 */}
-      <View style={[styles.buttonContainer, { flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 16 }]}>
-        {hasPendingQuestions && (
+      <View style={[styles.buttonContainer]}>
+        {(
           <TouchableOpacity
             style={[styles.sideButton, { backgroundColor: isDark ? "#ff981a" : "#ff981aff" }]}
             onPress={() => router.push("/standby")}
           >
-            <Text style={styles.askButtonText}>回答待ち{pendingCount}件</Text>
+            <Text style={styles.askButtonText}>ログアウト</Text>
           </TouchableOpacity>
         )}
-
-        <TouchableOpacity
-          style={[styles.sideButton, { backgroundColor: isDark ? "#ff981a" : "#ff981aff" }]}
-          onPress={() => router.push("/chat")}
-        >
-          <Text style={styles.askButtonText}>質問する</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );

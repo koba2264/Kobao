@@ -13,8 +13,9 @@ def receive():
     print(output)
     data = request.get_json()
     message = data.get('message')
-    stu_id = "test"
-    new_msg = Question(content=message,stu_id=stu_id, ansed_flag=False, is_read=False)
+    stu_id = data.get('stu_id')
+    que_id = data.get('que_id')
+    new_msg = Question(id = que_id, content=message,stu_id=stu_id, ansed_flag=False, is_read=False)
     db.session.add(new_msg)
     db.session.commit()
     print(data.get('content'))

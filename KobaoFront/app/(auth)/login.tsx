@@ -52,7 +52,7 @@ export default function IndexScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#000000ff' : '#fff' }]}>
-      <View style={[styles.header, { backgroundColor: isDark ? '#FF8C00' : '#ffffffff' }]}>
+      <View style={[styles.header, { backgroundColor: isDark ? '#FF8C00' : '#FF8C00' }]}>
         <Text style={[styles.headerTitle, { color: isDark ? '#ffffffff' : '#fff' }]}>KOBAO</Text>
       </View>
 
