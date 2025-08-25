@@ -86,13 +86,13 @@ export default function TabLayout() {
         <TouchableOpacity
           style={[
             styles.footerItem,
-            pathname === '/profile' && styles.activeItem,
+            pathname === '/mypage' && styles.activeItem,
           ]}
-          onPress={() => router.push('/')}
+          onPress={() => router.push('/mypage')}
         >
-          <Text style={pathname === '/profile' ? styles.activeText : [styles.inactiveText, { color: isDark ? "#bbb" : "#444" }]}>👤</Text>
+          <Text style={pathname === '/mypage' ? styles.activeText : [styles.inactiveText, { color: isDark ? "#bbb" : "#444" }]}>👤</Text>
           <Text
-            style={pathname === '/profile' ? styles.activeText : [styles.inactiveText, { color: isDark ? "#bbb" : "#444" }]}
+            style={pathname === '/mypage' ? styles.activeText : [styles.inactiveText, { color: isDark ? "#bbb" : "#444" }]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >

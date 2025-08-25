@@ -85,7 +85,10 @@ export default function IndexScreen() {
           placeholderTextColor={isDark ? '#aaa' : '#666'}
           value={password}
           onChangeText={setPassword}
+          keyboardType="default"
           secureTextEntry
+          autoCapitalize="none" 
+          autoCorrect={false}  
         />
         <Pressable style={[styles.button, { backgroundColor: isDark ? '#ff981a' : '#ff981aff' }]} onPress={loginFlask}>
           <Text style={styles.buttonText}>ログイン</Text>
