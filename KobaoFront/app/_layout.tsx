@@ -6,6 +6,7 @@ import { api } from '@/src/api';
 import { logout, getStatus } from '@/src/auth';
 
 export async function bootstrapSession() {
+
   const t = await getTokens();
   if (!t?.refresh) return; // そもそも未ログイン
 
