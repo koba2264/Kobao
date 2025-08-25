@@ -5,18 +5,11 @@ import { api } from '@/src/api';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, useColorScheme } from 'react-native';
 import { getStatus, logout } from "@/src/auth";
 
-type Question = {
-    id: string;
-    text: string;
-};
-
 const Home: React.FC = () => {
     const router = useRouter();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === "dark";
 
-
-    const [questions, setQuestions] = useState<Question[]>([]);
     const [studentName, setStudentName] = useState<string>("");
     const [studentID, setStudentID] = useState<string>("");
 
@@ -39,9 +32,9 @@ const Home: React.FC = () => {
             <View style={styles.listContainer}>
                 <ScrollView contentContainerStyle={styles.content}>
                     <View style={[styles.statusBox, { backgroundColor: isDark ? "#222" : "#ff8c0834" }]}>
-                        <Text style={[styles.statusTitle, { color: isDark ? "#fff" : "#000" }]}>私の情報</Text>
-                        <Text style={[styles.statusTitle, { color: isDark ? "#fff" : "#000" }]}>生徒名:{studentName}</Text>
-                        <Text style={[styles.statusTitle, { color: isDark ? "#fff" : "#000" }]}>ID:{studentID}</Text>
+                        <Text style={[styles.statusTitle, { color: isDark ? "#fff" : "#000" }]}>ACCOUNT</Text>
+                        <Text style={[styles.status, { color: isDark ? "#fff" : "#000" }]}>NAME:{studentName}</Text>
+                        <Text style={[styles.status, { color: isDark ? "#fff" : "#000" }]}>ID:{studentID}</Text>
                     </View>
                 </ScrollView>
             </View>
@@ -73,11 +66,19 @@ const styles = StyleSheet.create({
         paddingBottom: 80,
         flexGrow: 1,
         width: "100%",
+        height: "100%",
     },
     statusTitle: {
-        fontSize: 14,
-        fontWeight: "600",
+        fontSize: 40,
+        fontWeight: "700",
+        marginBottom: 20,
+        marginTop: 20,
+    },
+    status: {
+        fontSize: 20,
+        fontWeight: "500",
         marginBottom: 8,
+        marginTop: 10,
     },
     statusQuestion: {
         fontSize: 16,
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         alignItems: 'center',
         elevation: 3,
-        width: "95%",
+        width: "90%",
         
     },
     buttonText: {
