@@ -1,17 +1,22 @@
 import { Tabs, useRouter, usePathname } from 'expo-router';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, useColorScheme } from 'react-native';
 
 export default function TabLayout() {
   const router = useRouter();
   const pathname = usePathname();
-  //console.log('現在のパス:', pathname);
+  const colorScheme = useColorScheme();
 
+  const isDark = colorScheme === "dark";
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>KOBAO</Text>
+
+    <View style={[styles.container, { backgroundColor: isDark ? "#000000" : "#fff" }]}>
+      {/* ヘッダー */}
+      <View style={[styles.header, { backgroundColor: isDark ? "#FF8C00" : "#FF8C00" }]}>
+        <Text style={[styles.headerTitle, { color: isDark ? "#fff" : "#fff" }]}>KOBAO</Text>
+
       </View>
+
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -20,19 +25,25 @@ export default function TabLayout() {
       >
         <Tabs.Screen name="index" options={{ title: 'ホーム' }} />
       </Tabs>
-      <View style={styles.footer}>
+
+      {/* フッター */}
+      <View style={[styles.footer, { backgroundColor: isDark ? "#000000" : "#fff", borderColor: isDark ? "#555" : "#ccc" }]}>
         <TouchableOpacity
           style={[
             styles.footerItem,
-             (pathname === '/' || pathname === '/standby' || pathname.startsWith('/question/') || pathname.startsWith('/questionStandby/')) && styles.activeItem,
-        
+            (pathname === '/' || pathname === '/standby' || pathname.startsWith('/question/') || pathname.startsWith('/questionStandby/')) && styles.activeItem,
+
           ]}
           onPress={() => router.push('/')}
         >
-          <Text style={pathname === '/' ? styles.activeText : styles.inactiveText}>⌂</Text>
-          <Text style={pathname === '/' ? styles.activeText : styles.inactiveText} numberOfLines={1}
+          <Text style={pathname === '/' ? styles.activeText : [styles.inactiveText, { color: isDark ? "#bbb" : "#444" }]}>⌂</Text>
+          <Text
+            style={pathname === '/' ? styles.activeText : [styles.inactiveText, { color: isDark ? "#bbb" : "#444" }]}
+            numberOfLines={1}
             ellipsizeMode="tail"
-          >ホーム</Text>
+          >
+            ホーム
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -42,23 +53,32 @@ export default function TabLayout() {
           ]}
           onPress={() => router.push('/chat')}
         >
-          <Text style={pathname === '/chat' ? styles.activeText : styles.inactiveText}>💭</Text>
-          <Text style={pathname === '/chat' ? styles.activeText : styles.inactiveText} numberOfLines={1}
+          <Text style={pathname === '/chat' ? styles.activeText : [styles.inactiveText, { color: isDark ? "#bbb" : "#444" }]}>💭</Text>
+          <Text
+            style={pathname === '/chat' ? styles.activeText : [styles.inactiveText, { color: isDark ? "#bbb" : "#444" }]}
+            numberOfLines={1}
             ellipsizeMode="tail"
-          >質問</Text>
+          >
+            質問
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[
             styles.footerItem,
-            pathname === '/history' && styles.activeItem,
+
+            (pathname === '/history' || pathname.startsWith('/historyDetaile/')) && styles.activeItem,
           ]}
           onPress={() => router.push('/history')}
         >
-          <Text style={pathname === '/history' ? styles.activeText : styles.inactiveText}>📙</Text>
-          <Text style={pathname === '/history' ? styles.activeText : styles.inactiveText} numberOfLines={1}
+          <Text style={pathname === '/history' ? styles.activeText : [styles.inactiveText, { color: isDark ? "#bbb" : "#444" }]}>📙</Text>
+          <Text
+            style={pathname === '/history' ? styles.activeText : [styles.inactiveText, { color: isDark ? "#bbb" : "#444" }]}
+            numberOfLines={1}
             ellipsizeMode="tail"
-          >履歴</Text>
+          >
+            履歴
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -66,28 +86,34 @@ export default function TabLayout() {
             styles.footerItem,
             pathname === '/profile' && styles.activeItem,
           ]}
-          onPress={() => router.push('/profile')}
+          onPress={() => router.push('/')}
         >
-          <Text style={pathname === '/profile' ? styles.activeText : styles.inactiveText}>👤</Text>
-          <Text style={pathname === '/profile' ? styles.activeText : styles.inactiveText} numberOfLines={1}
+          <Text style={pathname === '/profile' ? styles.activeText : [styles.inactiveText, { color: isDark ? "#bbb" : "#444" }]}>👤</Text>
+          <Text
+            style={pathname === '/profile' ? styles.activeText : [styles.inactiveText, { color: isDark ? "#bbb" : "#444" }]}
+            numberOfLines={1}
             ellipsizeMode="tail"
-          >マイページ</Text>
+          >
+            マイページ
+          </Text>
         </TouchableOpacity>
-
       </View>
     </View>
   );
 }
+
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingBottom: 20,
+  },
   header: {
     paddingTop: 40,
     paddingBottom: 10,
     paddingHorizontal: 16,
-    backgroundColor: '#FF8C00',
   },
   headerTitle: {
     fontSize: 40,
-    color: '#fff',
     fontWeight: 'bold',
   },
   footer: {
@@ -95,8 +121,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingVertical: 1,
     borderTopWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#fff',
     height: 100,
   },
   footerItem: {
@@ -114,8 +138,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   inactiveText: {
-    color: '#444',
     fontSize: 15,
   },
-
 });

@@ -1,6 +1,43 @@
 import { Stack, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { View, ActivityIndicator } from 'react-native';
+import { getTokens, saveTokens, clearTokens } from '@/src/token';
+import { api } from '@/src/api';
+import { logout, getStatus } from '@/src/auth';
+
+export async function bootstrapSession() {
+  // await logout();
+  const t = await getTokens();
+  if (!t?.refresh) return; // そもそも未ログイン
+
+  try {
+    const res = await fetch(`${api.defaults.baseURL}/auth/refresh`, {
+      method: "POST",
+      headers: { 
+        Authorization: `Bearer ${t.refresh}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({})
+    });
+    if (!res.ok) {
+      await clearTokens();
+      return;
+    }
+    const data = await res.json();
+    console.log(data);
+    await saveTokens(data);
+    const status = await getStatus();
+    if(status.role === 'student') {
+      useRouter().replace('/(student)');
+    } else if (status.role === 'teacher') {
+      useRouter().replace('/(teacher)');
+    }
+  } catch (error) {
+    // ネットワーク不通などは、とりあえず現状トークン維持でスキップも可
+    console.error("Failed to bootstrap session:", error);
+  }
+}
 
 export default function RootLayout() {
   const router = useRouter();
@@ -8,22 +45,10 @@ export default function RootLayout() {
   useEffect(() => {
     // Stack
     requestAnimationFrame(() => {
-<<<<<<< HEAD
-      const role = 'test';
-=======
-      const role = 'login'; // 仮のロール。実際は AsyncStorage などから取得
 
->>>>>>> 6f1a9e4d1fee508896b6e963d8b1d7e50801721e
-
-      if (role === 'test') {
-        router.replace('/(test)');
-      } else if (role === 'student') {
-        router.replace('/(student)');
-      } else if (role === 'teacher') {
-        router.replace('/(teacher)');
-      } else {
-        router.replace('/(auth)/login');
-      }
+      bootstrapSession();
+      // ログイン画面へ遷移
+      router.replace('/(auth)/login');
     });
   }, []);
 

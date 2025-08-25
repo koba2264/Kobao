@@ -45,20 +45,23 @@ def login():
     # ユーザーが存在する場合はトークンを作成
     claims = {"role": role}
     # アクセストークンの作成
-    access  = create_access_token(identity=user["id"], additional_claims=claims)
+    access  = create_access_token(identity=id, additional_claims=claims)
     # リフレッシュトークンの作成
-    refresh = create_refresh_token(identity=user["id"], additional_claims=claims)
+    refresh = create_refresh_token(identity=id, additional_claims=claims)
 
     return jsonify({'result': 'success', "access": access, "refresh": refresh, "role": role}), 200
 
 # --- リフレッシュ（ローテーション採用）---
 # ・@jwt_required(refresh=True) なので「refreshトークン」でのみ呼べる
 # ・古い refresh の jti を失効させてから、新しい refresh を発行（盗難対策）
-@auth.post("/auth/refresh")
+@auth.route('/refresh', methods=['POST', 'OPTIONS'])
 @jwt_required(refresh=True)
 def refresh():
+    if request.method == 'OPTIONS':
+        return '', 200
     # いま使った refresh の jti を取得
     old_jti = get_jwt()["jti"]
+    print(old_jti)
     # 以降この refresh は無効扱い
     REVOKED.add(old_jti)
 
@@ -75,11 +78,13 @@ def refresh():
 # --- ログアウト ---
 # ・@jwt_required(refresh=True) のため、必ず「refreshトークン」を送る
 # ・現在の refresh を失効リストに登録 → 以後は使えない
-@auth.post("/auth/logout")
+@auth.route('/logout', methods=['POST', 'OPTIONS'])
 @jwt_required(refresh=True)
 def logout():
+    if request.method == 'OPTIONS':
+        return '', 200
     REVOKED.add(get_jwt()["jti"])
-    return jsonify({"msg": "logged out"}), 200
+    return '', 200
 
 # --- 認証が必要なAPI（例）---
 # ・@jwt_required() は「accessトークン」で呼ぶ（refreshではNG）
