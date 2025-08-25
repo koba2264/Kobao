@@ -5,11 +5,13 @@ from flask_jwt_extended import (
     create_access_token, create_refresh_token,
     jwt_required, get_jwt, get_jwt_identity
 )
+from flask_bcrypt import Bcrypt
 
 auth = Blueprint(
     "auth",
     __name__
 )
+bcrypt = Bcrypt()
 
 # 一時的にブラックリストを作成、後で変更する
 REVOKED = set()
@@ -22,36 +24,34 @@ def check_if_revoked(jwt_header, jwt_payload):
 # ログイン
 @auth.route('/login', methods=["POST"])
 def login():
-    # idとpasswordを取得
     data = request.get_json()
     id = data.get('id')
     password = data.get('password')
 
-    # 生徒と教師の判別用
     role = "student"
-    # 生徒の認証
-    user = Student.query.filter_by(id=id, hash_pass=password).first()
-    # 生徒が存在しない場合は教師を確認
-    if not user:
-        user = Teacher.query.filter_by(id=id, hash_pass=password).first()
-        # 教師が存在する場合はroleをteacherに変更
-        if user:
-            role  = "teacher"
-        # ユーザーが存在しない場合はエラーを返す
+    user = Student.query.filter_by(id=id).first()
+    # 学生に一致するIDが存在するかとパスワード確認
+    if user and bcrypt.check_password_hash(user.hash_pass, password):
+        # 認証OK
+        pass
+    else:
+        user = Teacher.query.filter_by(id=id).first()
+        # 教員に一致するIDが存在するかとパスワード確認
+        if user and bcrypt.check_password_hash(user.hash_pass, password):
+            # 認証OK
+            role = "teacher"
         else:
+            # 認証失敗
             return jsonify({'result': 'false'}), 401
-    
-    # ユーザーが存在する場合はトークンを作成
-    claims = {"role": role}
-    # アクセストークンの作成
-    access  = create_access_token(identity=id, additional_claims=claims)
-    # リフレッシュトークンの作成
-    refresh = create_refresh_token(identity=id, additional_claims=claims)
 
+    claims = {"role": role}
+    # アクセストークン作成
+    access  = create_access_token(identity=id, additional_claims=claims)
+    # リフレッシュトークン作成
+    refresh = create_refresh_token(identity=id, additional_claims=claims)
     return jsonify({'result': 'success', "access": access, "refresh": refresh, "role": role}), 200
 
 # トークンの再発行
-# ・古い refresh の jti を失効させてから、新しい refresh を発行（盗難対策）
 @auth.route('/refresh', methods=['POST', 'OPTIONS'])
 @jwt_required(refresh=True)
 def refresh():
@@ -73,9 +73,7 @@ def refresh():
 
     return jsonify({"access": new_access, "refresh": new_refresh}), 200
 
-# --- ログアウト ---
-# ・@jwt_required(refresh=True) のため、必ず「refreshトークン」を送る
-# ・現在の refresh を失効リストに登録 → 以後は使えない
+# ログアウト
 @auth.route('/logout', methods=['POST', 'OPTIONS'])
 @jwt_required(refresh=True)
 def logout():
@@ -84,10 +82,23 @@ def logout():
     REVOKED.add(get_jwt()["jti"])
     return '', 200
 
-# --- 認証が必要なAPI（例）---
-# ・@jwt_required() は「accessトークン」で呼ぶ（refreshではNG）
+# idとroleの取得
 @auth.get("/me")
 @jwt_required()
 def me():
     # 誰のトークンか（identity）と、追加クレーム（role）にアクセス
     return jsonify({"user_id": get_jwt_identity(), "role": get_jwt().get("role")})
+
+@auth.route('/create_dummy_student')
+def create_dummy_student():
+    # 仮アカウント情報
+    id = "test3"
+    password = "pass"
+    name = "テスト生徒"
+    # パスワードをハッシュ化
+    hash_pass = bcrypt.generate_password_hash(password).decode('utf-8')
+    # Studentモデルのインスタンス作成
+    student = Student(id=id, name=name, hash_pass=hash_pass)
+    db.session.add(student)
+    db.session.commit()
+    return '', 200
