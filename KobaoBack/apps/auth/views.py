@@ -14,7 +14,6 @@ auth = Blueprint(
 # 一時的にブラックリストを作成、後で変更する
 REVOKED = set()
 
-# token_in_blocklist_loader:
 # 受信した JWT の jti（一意ID）が失効リストにあれば拒否
 @jwt.token_in_blocklist_loader
 def check_if_revoked(jwt_header, jwt_payload):
@@ -51,8 +50,7 @@ def login():
 
     return jsonify({'result': 'success', "access": access, "refresh": refresh, "role": role}), 200
 
-# --- リフレッシュ（ローテーション採用）---
-# ・@jwt_required(refresh=True) なので「refreshトークン」でのみ呼べる
+# トークンの再発行
 # ・古い refresh の jti を失効させてから、新しい refresh を発行（盗難対策）
 @auth.route('/refresh', methods=['POST', 'OPTIONS'])
 @jwt_required(refresh=True)
