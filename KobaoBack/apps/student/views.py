@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from apps.models import db,Question,Answer,QA
+from apps.models import db,Question,Answer,QA,Student
 
 student = Blueprint(
     "student",
@@ -103,3 +103,10 @@ def update_question_is_read(question_id):
         "id": str(question.id),
         "is_read": question.is_read
     })
+
+@student.route('/student_name/<string:stu_id>', methods=["GET"])
+def get_student_name(stu_id):
+    student = Student.query.get(stu_id)
+    if not student:
+        return jsonify({"message": "生徒が見つかりません"}), 404
+    return jsonify({"stu_id": stu_id, "name": student.name})
