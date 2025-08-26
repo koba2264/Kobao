@@ -1,17 +1,19 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
+
+
  
 export default function TeacherRegisterScreen() {
   const [studentId, setStudentId] = useState("");
   const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState('');
  
   const handleRegister = async () => {
-    if (!studentId || !name || !password) {
+    if (!studentId || !name) {
       Alert.alert("エラー", "全ての項目を入力してください");
       return;
     }
-    console.log("学生登録:", { studentId, name, password });
+    console.log("学生登録:", { studentId, name});
     Alert.alert("登録完了", `学生 ${name} を登録しました`);
     try {
       const response = await fetch('http://127.0.0.1:5000/teacher/insert_student', {
@@ -22,15 +24,18 @@ export default function TeacherRegisterScreen() {
         body: JSON.stringify({ 
           student_id: studentId,
           student_name:name,
-          password:password
         }),
       });
     
       const data = await response.json();
       console.log(data);
-      setStudentId("");
-      setName("");
-      setPassword("");
+      setMessage(data.message);
+      if(data.result === 'false'){
+        return;
+      }else if(data.result === 'success'){
+        setStudentId("");
+        setName("");
+      }
     } catch (error) {
       Alert.alert("エラー", "学生登録中に問題が発生しました");
     }
@@ -52,14 +57,9 @@ export default function TeacherRegisterScreen() {
         value={name}
         onChangeText={setName}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="パスワード"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
       <Button title="登録" onPress={handleRegister} />
+      {message ? <Text style={styles.error}>{message}</Text> : null} 
+      {/* message があれば赤文字で表示 */}
     </View>
   );
 }
@@ -68,4 +68,8 @@ const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", padding: 20 },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 20, textAlign: "center" },
   input: { borderWidth: 1, borderColor: "#ccc", padding: 10, marginBottom: 10, borderRadius: 5 },
+  error: {
+    color: 'red', // 赤文字
+    marginTop: 12,
+  },
 });

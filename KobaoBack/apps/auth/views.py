@@ -5,6 +5,7 @@ from flask_jwt_extended import (
     create_access_token, create_refresh_token,
     jwt_required, get_jwt, get_jwt_identity
 )
+from datetime import datetime, timedelta,timezone
 
 auth = Blueprint(
     "auth",
@@ -27,21 +28,30 @@ def login():
     data = request.get_json()
     id = data.get('id')
     password = data.get('password')
+    
 
     # 生徒と教師の判別用
     role = "student"
     # 生徒の認証
-    user = Student.query.filter_by(id=id, hash_pass=password).first()
+    user = Student.query.filter_by(id=id).first()
+
     # 生徒が存在しない場合は教師を確認
     if not user:
-        user = Teacher.query.filter_by(id=id, hash_pass=password).first()
+        user = Teacher.query.filter_by(id=id).first()
+        change_pass = bool(user.change_pass)
+        now = datetime.now(timezone.utc)
+        last_update = user.update_at
         # 教師が存在する場合はroleをteacherに変更
         if user:
             role  = "teacher"
+            if change_pass or now - last_update > timedelta(days=30):
+                role = "change"
         # ユーザーが存在しない場合はエラーを返す
         else:
             return jsonify({'result': 'false'}), 401
     
+    if not user.check_password(password):
+        return jsonify({'result': 'false'}), 401
     # ユーザーが存在する場合はトークンを作成
     claims = {"role": role}
     # アクセストークンの作成
@@ -61,7 +71,7 @@ def refresh():
         return '', 200
     # いま使った refresh の jti を取得
     old_jti = get_jwt()["jti"]
-    print(old_jti)
+    # print(old_jti)
     # 以降この refresh は無効扱い
     REVOKED.add(old_jti)
 
@@ -93,3 +103,24 @@ def logout():
 def me():
     # 誰のトークンか（identity）と、追加クレーム（role）にアクセス
     return jsonify({"user_id": get_jwt_identity(), "role": get_jwt().get("role")})
+
+@auth.route('/admin', methods=['POST'])
+@jwt_required(refresh=True)  # refreshトークンで認証
+def admin():
+    teacher = Teacher.query.filter_by(id=get_jwt_identity()).first()
+    is_admin = bool(teacher.admin)
+    if not teacher:
+        return jsonify({"admin": False}), 404
+    return jsonify({"admin": is_admin})
+
+@auth.route('/change_pass',methods=["POST"])
+def change_pass():
+  data = request.get_json()
+  teacher_id = data.get('teacher_id')
+  password = data.get('password')
+  teacher = Teacher.query.filter_by(id=teacher_id).first()
+  teacher.set_password(password)
+  teacher.change_pass = False
+  db.session.commit()
+  # 辞書型で返す
+  return jsonify({'result': 'いいね！'})
