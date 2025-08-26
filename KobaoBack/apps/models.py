@@ -40,7 +40,8 @@ class Teacher(db.Model):
     hash_pass = db.Column(db.String(60), nullable=False)
     admin = db.Column(db.Boolean, nullable=False, default=False)
     create_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, nullable=False)
-    update_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, nullable=False)
+    update_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    change_pass = db.Column(db.Boolean, nullable=False, default=True)
 
     answers = db.relationship('Answer', backref='teacher', cascade='all, delete-orphan')
 

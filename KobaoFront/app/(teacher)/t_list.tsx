@@ -14,7 +14,7 @@ import { useFocusEffect } from "@react-navigation/native";
 type Teacher = {
   id: string;
   name: string;
-  password: string;
+  change_pass: boolean;
 };
  
 export default function TeacherListScreen() {
@@ -35,7 +35,7 @@ export default function TeacherListScreen() {
         ((teacher:any) => ({
           id: teacher.id.trim(),
           name: teacher.name.trim(),
-          password: teacher.hash_pass.trim()
+          change_pass: teacher.change_pass
         }));
         setTeachers(formattedTeachers)
       } catch (error) {
@@ -97,7 +97,6 @@ export default function TeacherListScreen() {
         body: JSON.stringify({ 
           teacher_id: selectedTeacher.id,
           teacher_name: selectedTeacher.name,
-          password: selectedTeacher.password
         }),
         });
       } catch (error) {
@@ -110,6 +109,32 @@ export default function TeacherListScreen() {
       setSelectedTeacher(null);
     }
   };
+
+  const change_pass = async () => {
+    if (selectedTeacher) {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/teacher/change_pass', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            teacher_id: selectedTeacher.id,
+          }),
+        });
+
+      // 成功したら state を更新してボタンを無効化
+      setSelectedTeacher(prev => prev ? { ...prev, change_pass: true } : prev);
+
+      // リスト全体の teachers も更新しておくと FlatList にも反映される
+      setTeachers(prev =>
+        prev.map(t => t.id === selectedTeacher.id ? { ...t, change_pass: true } : t)
+      );
+      } catch (error) {
+        Alert.alert("エラー", "教師編集中にエラー");
+      }
+    }
+  }
  
   const renderItem = ({ item }: { item: Teacher }) => (
     <View style={styles.box}>
@@ -122,59 +147,59 @@ export default function TeacherListScreen() {
     </View>
   );
  
-  return (
-    <View style={styles.container}>
-      <FlatList
-        data={teachers}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-      />
- 
-      <Modal visible={modalVisible} transparent animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalBox}>
-            <Text>教師編集</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="名前"
-              value={selectedTeacher?.name}
-              onChangeText={(text) =>
-                setSelectedTeacher((prev) => prev && { ...prev, name: text })
-              }
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="パスワード"
-              value={selectedTeacher?.password}
-              onChangeText={(text) =>
-                setSelectedTeacher((prev) => prev && { ...prev, password: text })
-              }
-            />
-            <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Text style={{ color: "red" }}>キャンセル</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={saveEdit}>
-                <Text style={{ color: "green" }}>保存</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  console.log(selectedTeacher)
-                  if (selectedTeacher)
-                    handleDelete(selectedTeacher);
-                  // setModalVisible(false);
-                }}
-              >
-                <Text style={{ color: "orange" }}>削除</Text>
-              </TouchableOpacity>
-            </View>
+return (
+  <View style={styles.container}>
+    <FlatList
+      data={teachers}
+      keyExtractor={(item) => item.id}
+      renderItem={renderItem}
+    />
+
+    <Modal visible={modalVisible} transparent animationType="slide">
+      <View style={styles.modalContainer}>
+        <View style={styles.modalBox}>
+          <Text style={styles.modalTitle}>教師編集</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="名前"
+            value={selectedTeacher?.name}
+            onChangeText={(text) =>
+              setSelectedTeacher((prev) => prev && { ...prev, name: text })
+            }
+          />
+
+          {/* パスワード変更ボタン */}
+          <TouchableOpacity
+            onPress={change_pass}
+            disabled={selectedTeacher?.change_pass} // change_passがtrueなら無効化
+            style={[
+              styles.passButton,
+              selectedTeacher?.change_pass && styles.passButtonDisabled, // 無効時のスタイルを追加
+            ]}
+          >
+            <Text style={styles.passButtonText}>
+              {selectedTeacher?.change_pass ? "変更要求済み" : "パスワードの変更を要求"}
+            </Text>
+          </TouchableOpacity>
+
+          <View style={styles.actionButtons}>
+            <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
+              <Text style={styles.cancelText}>キャンセル</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.saveButton} onPress={saveEdit}>
+              <Text style={styles.saveText}>保存</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.deleteButton} onPress={() => selectedTeacher && handleDelete(selectedTeacher)}>
+              <Text style={styles.deleteText}>削除</Text>
+            </TouchableOpacity>
           </View>
         </View>
-      </Modal>
-    </View>
-  );
+      </View>
+    </Modal>
+  </View>
+);
 }
- 
+
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 10, backgroundColor: "#f5f5f5" },
   box: {
@@ -189,7 +214,76 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   menu: { fontSize: 20, fontWeight: "bold" },
-  modalContainer: { flex: 1, justifyContent: "center", backgroundColor: "rgba(0,0,0,0.5)" },
-  modalBox: { backgroundColor: "#fff", margin: 20, padding: 20, borderRadius: 10 },
-  input: { borderWidth: 1, borderColor: "#ccc", padding: 10, marginVertical: 5, borderRadius: 5 },
+
+  // モーダル全体
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    padding: 20,
+  },
+  modalBox: {
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 12,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+
+  // 入力欄
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    padding: 12,
+    marginVertical: 10,
+    borderRadius: 8,
+    fontSize: 16,
+  },
+
+  // パスワード変更ボタン
+  passwordButton: {
+    backgroundColor: "#2196F3",
+    padding: 12,
+    borderRadius: 8,
+    marginVertical: 10,
+    alignItems: "center",
+  },
+  passwordButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  
+  passButton: {
+    backgroundColor: "#007bff",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  passButtonDisabled: {
+    backgroundColor: "#ccc", // 無効時はグレー
+  },
+  passButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+
+  // 下の操作ボタン
+  actionButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+  cancelButton: { flex: 1, alignItems: "center" },
+  saveButton: { flex: 1, alignItems: "center" },
+  deleteButton: { flex: 1, alignItems: "center" },
+  cancelText: { color: "red", fontSize: 16 },
+  saveText: { color: "green", fontSize: 16 },
+  deleteText: { color: "orange", fontSize: 16 },
 });
