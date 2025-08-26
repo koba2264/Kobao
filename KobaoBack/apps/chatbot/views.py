@@ -92,15 +92,18 @@ def setup():
 @chatbot.route('/add', methods=["POST"])
 def add():
     data = request.get_json()
-    q = Question.query.filter_by(id=data.que_id).first()
+    que_id = data.get('que_id')
+    ans_id = data.get('ans_id')
+
+    q = Question.query.filter_by(id=que_id).first()
     vec = model.encode(q.content)
     points = [
         PointStruct(
-            id=str(data.que_id),
+            id=que_id,
             vector=vec,
             payload={
-                "que_id": str(data.que_id),
-                "ans_id": str(data.ans_id),
+                "que_id": que_id,
+                "ans_id": ans_id,
             },
         ),
     ]
