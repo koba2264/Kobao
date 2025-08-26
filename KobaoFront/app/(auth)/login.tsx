@@ -30,7 +30,7 @@ export default function IndexScreen() {
             alert('ID またはパスワードが間違っています。');
         }
     } catch { 
-      const response = await fetch('http://127.0.0.1:5000/auth/login', {
+      const response = await fetch(`${api.defaults.baseURL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, password }),
@@ -52,7 +52,7 @@ export default function IndexScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#000000ff' : '#fff' }]}>
-      <View style={[styles.header, { backgroundColor: isDark ? '#FF8C00' : '#ffffffff' }]}>
+      <View style={[styles.header, { backgroundColor: isDark ? '#FF8C00' : '#FF8C00' }]}>
         <Text style={[styles.headerTitle, { color: isDark ? '#ffffffff' : '#fff' }]}>KOBAO</Text>
       </View>
 
@@ -85,7 +85,10 @@ export default function IndexScreen() {
           placeholderTextColor={isDark ? '#aaa' : '#666'}
           value={password}
           onChangeText={setPassword}
+          keyboardType="default"
           secureTextEntry
+          autoCapitalize="none" 
+          autoCorrect={false}  
         />
         <Pressable style={[styles.button, { backgroundColor: isDark ? '#ff981a' : '#ff981aff' }]} onPress={loginFlask}>
           <Text style={styles.buttonText}>ログイン</Text>

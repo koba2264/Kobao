@@ -30,8 +30,7 @@ class LocalConfig(BaseConfig):
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     # トークンの取得場所
     JWT_TOKEN_LOCATION = ["headers"]
-
-
+    
 class TestingConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI ='postgresql+psycopg2://postgres:Takuhaya1103@localhost:5432/kobao'
     SQLALCHEMY_TRACK_MODIFICATIONS = False

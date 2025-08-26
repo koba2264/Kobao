@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from apps.app import db,jwt
+from apps.app import db,jwt,bcrypt
 from apps.models import Student, Teacher
 from flask_jwt_extended import (
     create_access_token, create_refresh_token,
@@ -7,11 +7,11 @@ from flask_jwt_extended import (
 )
 from flask_bcrypt import Bcrypt
 
+
 auth = Blueprint(
     "auth",
     __name__
 )
-bcrypt = Bcrypt()
 
 # 一時的にブラックリストを作成、後で変更する
 REVOKED = set()
@@ -24,6 +24,7 @@ def check_if_revoked(jwt_header, jwt_payload):
 # ログイン
 @auth.route('/login', methods=["POST"])
 def login():
+    # idとpasswordを取得
     data = request.get_json()
     id = data.get('id')
     password = data.get('password')
@@ -82,9 +83,13 @@ def logout():
     REVOKED.add(get_jwt()["jti"])
     return '', 200
 
+
 # idとroleの取得
 @auth.get("/me")
 @jwt_required()
 def me():
+    if request.method == 'OPTIONS':
+        return '', 200
     # 誰のトークンか（identity）と、追加クレーム（role）にアクセス
     return jsonify({"user_id": get_jwt_identity(), "role": get_jwt().get("role")})
+

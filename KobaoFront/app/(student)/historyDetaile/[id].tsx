@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ActivityIndicator, ScrollView, Pressable, useColorScheme } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { api } from "@/src/api";
 
 type QuestionDetail = {
   id: string;
@@ -23,9 +24,10 @@ export default function HistoryDetailScreen() {
   useEffect(() => {
     if (!id || Array.isArray(id)) return;
 
-    fetch(`http://127.0.0.1:5000/student/answer/${id}`)
+    fetch(`${api.defaults.baseURL}/student/answer/${id}`)
       .then(res => res.json())
       .then((data: QuestionDetail) => {
+        console.log("APIレスポンス", data);
         setQuestion(data);
         setLoading(false);
       })

@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from apps.models import db,Question,Answer,QA
+from apps.models import db,Question,Answer,QA,Student
 
 student = Blueprint(
     "student",
@@ -13,8 +13,9 @@ def receive():
     print(output)
     data = request.get_json()
     message = data.get('message')
-    stu_id = "test"
-    new_msg = Question(content=message,stu_id=stu_id, ansed_flag=False, is_read=False)
+    stu_id = data.get('stu_id')
+    que_id = data.get('que_id')
+    new_msg = Question(id = que_id, content=message,stu_id=stu_id, ansed_flag=False, is_read=False)
     db.session.add(new_msg)
     db.session.commit()
     print(data.get('content'))
@@ -102,3 +103,10 @@ def update_question_is_read(question_id):
         "id": str(question.id),
         "is_read": question.is_read
     })
+
+@student.route('/student_name/<string:stu_id>', methods=["GET"])
+def get_student_name(stu_id):
+    student = Student.query.get(stu_id)
+    if not student:
+        return jsonify({"message": "生徒が見つかりません"}), 404
+    return jsonify({"stu_id": stu_id, "name": student.name})

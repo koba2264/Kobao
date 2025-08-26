@@ -7,7 +7,6 @@ import { api } from '@/src/api';
 import { logout, getStatus } from '@/src/auth';
 
 export async function bootstrapSession() {
-  // await logout();
   const t = await getTokens();
   if (!t?.refresh) return; // そもそも未ログイン
 
@@ -45,7 +44,6 @@ export default function RootLayout() {
   useEffect(() => {
     // Stack
     requestAnimationFrame(() => {
-
       bootstrapSession();
       // ログイン画面へ遷移
       router.replace('/(auth)/login');
