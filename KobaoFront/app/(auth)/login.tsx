@@ -32,7 +32,6 @@ export default function IndexScreen() {
             alert('ID またはパスワードが間違っています。');
         } 
     } catch { 
-
       const response = await fetch(`${api.defaults.baseURL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

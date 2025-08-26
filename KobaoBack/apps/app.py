@@ -9,6 +9,10 @@ from flask_bcrypt import Bcrypt
 from qdrant_client import QdrantClient
 from sentence_transformers import SentenceTransformer
 
+from flask_bcrypt import Bcrypt
+from qdrant_client import QdrantClient
+from sentence_transformers import SentenceTransformer
+
 db = SQLAlchemy()
 jwt = JWTManager()
 bcrypt = Bcrypt()
@@ -25,7 +29,7 @@ def create_app(config_key):
     db.init_app(app)
     # パスワードハッシュ用
     bcrypt.init_app(app)
-
+    
     from apps.chatbot import views as chatbot_views
     from apps.teacher import views as teacher_views
     from apps.auth import views as auth_views

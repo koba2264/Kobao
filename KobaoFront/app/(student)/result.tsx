@@ -3,37 +3,45 @@ import { v4 as uuidv4 } from "uuid";
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, ActivityIndicator, StyleSheet, ScrollView, Pressable, useColorScheme
+  View,
+  Text,
+  ActivityIndicator,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  useColorScheme,
+  Modal,
+  TouchableWithoutFeedback,
+  Alert,
 } from 'react-native';
-
 import { api } from "@/src/api";
 
 // chatbotからの返答用
 type QuestionAnswer = {
-  id: number;
-  question: string;
-  answer: string;
+  ans_id: string;
+  que_text: string;
+  ans_text: string;
 };
+
 export default function ResultScreen() {
-
-  // 入力されたテキスト
   const [text, setText] = useState('');
-  
-  // UUIDの生成
   const id = uuidv4();
-  console.log(id);
 
-  // chatbotからの返答されたテキストのリスト
   const [reply, setReply] = useState<QuestionAnswer[] | null>(null);
-  // ルーターからのパラメータ取得
+
+  // 選択中のQA
+  const [selectedQA, setSelectedQA] = useState<QuestionAnswer | null>(null);
+
+  // モーダル用
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalQA, setModalQA] = useState<QuestionAnswer | null>(null);
+
   const { message } = useLocalSearchParams();
-  const scheme = useColorScheme(); // "light" or "dark"
+  const scheme = useColorScheme();
   const isDark = scheme === "dark";
   const styles = getStyles(isDark);
-  // 返答の状態管理
-  // const [reply, setReply] = useState<string | null>(null);
 
-  // ルーターを使用して画面遷移を行う
+  // 仮のQ&Aデータ
   const sendTextToFlask = () => {
     router.push({
       pathname: '/(student)/sendTeacher',
@@ -52,9 +60,42 @@ export default function ResultScreen() {
       body: JSON.stringify({ message: message }),
     })
       .then(res => res.json())
-      .then((data: QuestionAnswer[]) => setReply(data))
-      .catch(() => setReply([{ id: 1, question: 'エラー', answer: 'エラーが発生しました' }]));
+      .then((data: QuestionAnswer[]) => { setReply(data), console.log(data); })
+      .catch(() => setReply([{ ans_id: "error", que_text: 'エラー', ans_text: 'エラーが発生しました' }]));
   }, [message]);
+
+  // QAブロックのタップ処理
+  const handleTap = (qa: QuestionAnswer) => {
+    setSelectedQA(qa);
+    setModalQA(qa);
+    setModalVisible(true);
+  };
+
+  // 選択QAをFlaskに送信
+  // 解決ボタンでモーダルQAをFlaskに送信
+  const resolve = async () => {
+    if (!modalQA) return;
+
+    try {
+      const response = await fetch(`${api.defaults.baseURL}/chatbot/receive`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id,
+          question: modalQA.que_text,
+          answer: modalQA.ans_text,
+        }),
+      });
+
+      if (!response.ok) throw new Error('送信失敗');
+
+      setModalVisible(false);
+      Alert.alert('送信成功', '解決済みとして送信しました');
+    } catch (error) {
+      console.error(error);
+      Alert.alert('送信失敗', '通信に失敗しました');
+    }
+  };
 
   if (!reply) {
     return (
@@ -67,7 +108,12 @@ export default function ResultScreen() {
 
   return (
     <View style={styles.all}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      {/* チャット部分 */}
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.chatContainer}>
           {/* ユーザー */}
           <View style={styles.messageBlockRight}>
@@ -76,119 +122,188 @@ export default function ResultScreen() {
               <Text style={styles.userMessage}>{message}</Text>
             </View>
           </View>
-        </View>
 
-        {/* KOBAOの返答 */}
-        {/* KOBAOの返答 */}
-        <View style={styles.messageBlockLeft}>
-          <Text style={styles.name}>KOBAO</Text>
-          <View style={styles.botMessageContainer}>
-            {(reply && reply.length > 0) ? (
-              reply.map((qa) => (
-                <View key={qa.id} style={styles.qaBlock}>
-                  <Text style={styles.botQuestion}>Q: {qa.question}</Text>
-                  <Text style={styles.botAnswer}>A: {qa.answer}</Text>
-                </View>
-              ))
-            ) : (
-              <Text style={styles.botMessage}>回答がありません</Text>
-            )}
+          {/* KOBAOの返答 */}
+          <View style={styles.messageBlockLeft}>
+            <Text style={styles.name}>KOBAO</Text>
+            <View style={styles.botMessageContainer}>
+              {reply.length > 0 ? (
+                reply.map((qa) => (
+                  <Pressable
+                    key={qa.ans_id}
+                    style={[
+                      styles.qaBlock,
+                      selectedQA?.ans_id === qa.ans_id && { backgroundColor: '#ffd580' }
+                    ]}
+                    onPress={() => handleTap(qa)}
+                  >
+                    <Text style={styles.botQuestion} numberOfLines={2} ellipsizeMode="tail">
+                      Q: {qa.que_text}
+                    </Text>
+                    <Text style={styles.botAnswer} numberOfLines={2} ellipsizeMode="tail">
+                      A: {qa.ans_text}
+                    </Text>
+                  </Pressable>
+                ))
+              ) : (
+                <Text style={styles.botMessage}>回答がありません</Text>
+              )}
+            </View>
           </View>
         </View>
-
       </ScrollView>
 
-      {/* 送信ボタン */}
-      <Pressable style={styles.askButton} onPress={sendTextToFlask}>
-        <Text style={styles.askButtonText}>先生に送信</Text>
-      </Pressable>
+      {/* フッターの固定ボタン */}
+      <View style={{ padding: 10 }}>
+        <Pressable style={styles.askButton} onPress={sendTextToFlask}>
+          <Text style={styles.askButtonText}>先生に送信</Text>
+        </Pressable>
+      </View>
+
+      {/* モーダル */}
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+          <View style={styles.modalOverlay}>
+            <TouchableWithoutFeedback>
+              <View style={styles.modalContent}>
+                <Pressable
+                  style={styles.modalCloseIcon}
+                  onPress={() => setModalVisible(false)}
+                >
+                  <Text style={styles.modalCloseIconText}>×</Text>
+                </Pressable>
+
+                <Text style={styles.modalTitle}>質問詳細</Text>
+                <Text style={styles.modalText}>Q: {modalQA?.que_text}</Text>
+                <Text style={styles.modalText}>A: {modalQA?.ans_text}</Text>
+
+                <Pressable
+                  style={styles.modalActionButton}
+                  onPress={resolve}
+                >
+                  <Text style={styles.modalActionText}>解決</Text>
+                </Pressable>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+
+
     </View>
   );
 }
 
 const getStyles = (isDark: boolean) =>
   StyleSheet.create({
-    all: {
-      flex: 1,
-      backgroundColor: isDark ? "#121212" : "#fff",
-    },
-    scrollContent: {
-      flexGrow: 1,
-      justifyContent: 'flex-start',
-      padding: 20,
-      width: '100%',
-      backgroundColor: isDark ? "#121212" : "#fff",
-    },
-    chatContainer: {
-      flexDirection: 'column',
-      gap: 20,
-    },
-    loadingContainer: {
+    all: { flex: 1, backgroundColor: isDark ? "#121212" : "#fff", width: "100%" },
+    scrollContent: { flexGrow: 1, justifyContent: 'flex-start', padding: 20, width: '100%', paddingBottom: 100, backgroundColor: isDark ? "#121212" : "#fff" },
+    chatContainer: { flexDirection: 'column', gap: 20 },
+    loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: isDark ? "#121212" : "#fff" },
+    messageBlockRight: { alignSelf: 'flex-end', alignItems: 'flex-end' },
+    messageBlockLeft: { alignSelf: 'flex-start', width: '100%', alignItems: 'flex-start' },
+    name: { fontSize: 12, color: isDark ? '#aaa' : '#666', marginBottom: 4 },
+    userMessageContainer: { backgroundColor: '#FF8C00', padding: 12, borderRadius: 16, maxWidth: '70%' },
+    userMessage: { color: '#fff', fontSize: 16 },
+    botMessageContainer: { backgroundColor: isDark ? '#333' : '#eee', padding: 12, borderRadius: 16, maxWidth: '70%' },
+    botMessage: { color: isDark ? '#fff' : '#333', fontSize: 16 },
+    askButton: { width: "90%", backgroundColor: "#ff981aff", borderRadius: 10, paddingVertical: 12, alignItems: "center", position: "absolute", bottom: 30, alignSelf: "center" },
+    askButtonText: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
+    qaBlock: { marginBottom: 12, padding: 8, borderRadius: 12 },
+    botQuestion: { fontWeight: "bold", fontSize: 16, color: isDark ? "#fff" : "#333", marginBottom: 4 },
+    botAnswer: { fontSize: 16, color: isDark ? "#ccc" : "#555" },
+
+    // モーダル用
+    modalText: { fontSize: 16, marginBottom: 8, color: isDark ? '#ccc' : '#555' },
+    modalCloseButton: { marginTop: 12, backgroundColor: '#FF8C00', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 12 },
+    modalCloseText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+    modalOverlay: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: isDark ? "#121212" : "#fff",
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      padding: 20,
     },
-    messageBlockRight: {
-      alignSelf: 'flex-end',
-      alignItems: 'flex-end',
-    },
-    messageBlockLeft: {
-      alignSelf: 'flex-start',
-      alignItems: 'flex-start',
-    },
-    name: {
-      fontSize: 12,
-      color: isDark ? '#aaa' : '#666',
-      marginBottom: 4,
-    },
-    userMessageContainer: {
-      backgroundColor: '#FF8C00',
-      padding: 12,
+    modalContent: {
+      width: '100%',
+      maxWidth: 400,
+      backgroundColor: isDark ? '#2c2c2c' : '#fff',
+      padding: 20,
       borderRadius: 16,
-      maxWidth: '70%',
+      alignItems: 'stretch',
     },
-    userMessage: {
-      color: '#fff',
-      fontSize: 16,
-    },
-    botMessageContainer: {
-      backgroundColor: isDark ? '#333' : '#eee',
-      padding: 12,
-      borderRadius: 16,
-      maxWidth: '70%',
-    },
-    botMessage: {
-      color: isDark ? '#fff' : '#333',
-      fontSize: 16,
-    },
-    askButton: {
-      width: "90%",
-      backgroundColor: "#ff981aff",
-      borderRadius: 10,
-      paddingVertical: 12,
-      alignItems: "center",
-      position: "absolute",
-      bottom: 30,
-      alignSelf: "center",
-    },
-    askButtonText: {
-      color: '#fff',
+    modalTitle: {
       fontSize: 20,
       fontWeight: 'bold',
+      marginBottom: 16,
+      color: isDark ? '#fff' : '#333',
+      textAlign: 'center',
     },
-    qaBlock: {
+
+    qaBox: {
+      backgroundColor: isDark ? '#444' : '#f9f9f9',
+      borderRadius: 12,
+      padding: 12,
       marginBottom: 12,
+      borderWidth: 1,
+      borderColor: isDark ? '#555' : '#ddd',
     },
-    botQuestion: {
-      fontWeight: "bold",
+    qaLabel: {
+      fontWeight: 'bold',
       fontSize: 16,
-      color: isDark ? "#fff" : "#333",
       marginBottom: 4,
+      color: '#FF8C00',
     },
-    botAnswer: {
+    qaText: {
       fontSize: 16,
-      color: isDark ? "#ccc" : "#555",
+      color: isDark ? '#fff' : '#333',
+    },
+
+    modalButtonRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 20,
+    },
+    modalButton: {
+      flex: 1,
+      marginHorizontal: 5,
+      paddingVertical: 12,
+      borderRadius: 10,
+      alignItems: 'center',
+    },
+    modalButtonText: {
+      color: '#fff',
+      fontWeight: 'bold',
+      fontSize: 16,
+    },
+    modalCloseIcon: {
+      position: 'absolute',
+      top: 10,
+      right: 10,
+      padding: 5,
+    },
+    modalCloseIconText: {
+      fontSize: 22,
+      fontWeight: 'bold',
+      color: '#FF8C00',
+    },
+    modalActionButton: {
+      marginTop: 20,
+      backgroundColor: '#FF8C00',
+      paddingVertical: 10,
+      paddingHorizontal: 20,
+      borderRadius: 12,
+    },
+    modalActionText: {
+      color: '#fff',
+      fontWeight: 'bold',
+      fontSize: 16,
+      textAlign: 'center',
     },
 
   });

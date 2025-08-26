@@ -25,7 +25,7 @@ def receive():
     text = data.get('message')
     query_vec = model.encode(text)
 
-    res = client.search(collection_name="que", query_vector=query_vec, limit=3)
+    res = client.search(collection_name="Questions", query_vector=query_vec, limit=3)
     result = []
     for i in range(len(res)):
         if res[i].score >= 0.9:
@@ -54,13 +54,13 @@ def preprocess(text: str) -> str:
 
 @chatbot.route('/setup')
 def setup():
-    student = Student(id='test3', name='学生')
-    student.set_password('pass')
-    teacher = Teacher(id='test4', name='教員')
-    teacher.set_password('pass')
-    db.session.add(student)
-    db.session.add(teacher)
-    db.session.commit()
+    # student = Student(id='test3', name='学生')
+    # student.set_password('pass')
+    # teacher = Teacher(id='test4', name='教員')
+    # teacher.set_password('pass')
+    # db.session.add(student)
+    # db.session.add(teacher)
+    # db.session.commit()
     client.recreate_collection(
         collection_name="Questions",
         vectors_config=VectorParams(size=1024, distance=Distance.COSINE),
@@ -109,4 +109,3 @@ def add():
     ]
     client.upsert(collection_name="Questions", points=points)
     return '', 200
-

@@ -70,6 +70,7 @@ def refresh():
     if request.method == 'OPTIONS':
         return '', 200
     # いま使った refresh の jti を取得
+    print('options')
     old_jti = get_jwt()["jti"]
     # print(old_jti)
     # 以降この refresh は無効扱い
