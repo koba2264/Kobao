@@ -57,6 +57,22 @@ def get_messages():
     ]
     return jsonify(result)
 
+@student.route('/messagesHistory/<string:stu_id>', methods=["GET"])
+def get_stu_messages(stu_id):
+    messages = Question.query.filter_by(stu_id=stu_id).all()
+    result = [
+        {
+            "id": str(msg.id),
+            "content": msg.content,
+            "asked_at": msg.asked_at.strftime("%Y-%m-%dT%H:%M:%S") if msg.asked_at else None,
+            "ansed_flag": msg.ansed_flag,
+            "is_read": msg.is_read,
+        }
+        for msg in messages
+    ]
+    print("all clear")
+    return jsonify(result)
+
 
 @student.route('/answer/<string:question_id>', methods=["GET"])
 def get_answer(question_id):
