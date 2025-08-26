@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { api } from '@/src/api';
+
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, useColorScheme } from 'react-native';
 import { getStatus } from "@/src/auth";
 
@@ -49,7 +50,7 @@ const Home: React.FC = () => {
       };
     }, [status?.user_id])
   );
-
+      
   return (
     <View style={[styles.container, { backgroundColor: isDark ? "#000" : "#fff" }]}>
       <View style={styles.listContainer}>
@@ -193,5 +194,4 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 5,
   },
-
 });

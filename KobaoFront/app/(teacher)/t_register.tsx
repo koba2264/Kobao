@@ -1,17 +1,27 @@
-import React, { useState } from "react";
+import React, { useState,useCallback } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+
  
 export default function TeacherRegisterScreen() {
-  const [teacherId, setTeacherId] = useState("");
+  const [teacher_id, setTeacher_id] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState('');
+
+  useFocusEffect(
+    useCallback(() => {
+      setMessage('');
+    }, [])
+  );
+
  
   const handleRegister = async () => {
-    if (!teacherId || !name || !password) {
+    if (!teacher_id || !name || !password) {
       Alert.alert("エラー", "全ての項目を入力してください");
       return;
     }
-    console.log("教師登録:", { teacherId, name, password });
+    console.log("教師登録:", { teacher_id, name, password });
     Alert.alert("登録完了", `教師 ${name} を登録しました`);
     try {
       const response = await fetch('http://127.0.0.1:5000/teacher/insert_teacher', {
@@ -20,7 +30,7 @@ export default function TeacherRegisterScreen() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
-          teacherId: teacherId,
+          teacher_id: teacher_id,
           name:name,
           password:password
         }),
@@ -28,9 +38,14 @@ export default function TeacherRegisterScreen() {
     
       const data = await response.json();
       console.log(data);
-      setTeacherId("");
-      setName("");
-      setPassword("");
+      setMessage(data.message);
+      if(data.result === 'false'){
+        return;
+      }else if(data.result === 'success'){
+        setTeacher_id("");
+        setName("");
+        setPassword("");
+      }
     } catch (error) {
       Alert.alert("エラー", "教員登録中に問題が発生しました");
     }
@@ -43,8 +58,8 @@ export default function TeacherRegisterScreen() {
       <TextInput
         style={styles.input}
         placeholder="教師ID"
-        value={teacherId}
-        onChangeText={setTeacherId}
+        value={teacher_id}
+        onChangeText={setTeacher_id}
       />
       <TextInput
         style={styles.input}
@@ -60,6 +75,8 @@ export default function TeacherRegisterScreen() {
         onChangeText={setPassword}
       />
       <Button title="登録" onPress={handleRegister} />
+      {message ? <Text style={styles.error}>{message}</Text> : null} 
+      {/* message があれば赤文字で表示 */}
     </View>
   );
 }
@@ -68,4 +85,8 @@ const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", padding: 20 },
   title: { fontSize: 24, fontWeight: "bold", marginBottom: 20, textAlign: "center" },
   input: { borderWidth: 1, borderColor: "#ccc", padding: 10, marginBottom: 10, borderRadius: 5 },
+  error: {
+    color: 'red', // 赤文字
+    marginTop: 12,
+  },
 });

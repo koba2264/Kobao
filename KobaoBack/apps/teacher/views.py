@@ -1,7 +1,9 @@
 from flask import Blueprint, jsonify, request
 from sqlalchemy import text as sql_text
 from apps.app import db
+from apps.models import Student, Teacher,Answer,AnsTag,Tag
 import uuid
+from flask_cors import cross_origin
 teacher = Blueprint(
   "teacher",
   __name__,
@@ -17,8 +19,6 @@ def select_tag():
   result = db.session.execute(sql)
   # 結果を取得
   rows = result.mappings().all()
-  for row in rows:
-    print(row)
   return {"tag":[dict(row) for row in rows]}
 
 @teacher.route('/insert_tag',methods=["POST"])
@@ -41,35 +41,50 @@ def select_question():
   result = db.session.execute(sql)
   # 結果を取得
   rows = result.mappings().all()
-  for row in rows:
-    print(row)
   return {"question":[dict(row) for row in rows]}
 
-@teacher.route('/select_question_tag',methods=["GET"])
+@teacher.route('/select_question_tag', methods=["GET"])
 def select_question_tag():
-  # SQL文
-  sql = sql_text("SELECT ROW_NUMBER() OVER (ORDER BY questions.content) AS id,questions.content,tag.tag_name FROM questions INNER JOIN student on questions.stu_id = student.id INNER JOIN stutag on student.id = stutag.stu_id INNER JOIN tag on stutag.tag_id = tag.id")
-  # SQL実行
-  result = db.session.execute(sql)
-  # 結果を取得
-  rows = result.mappings().all()
-  for row in rows:
-    print(row)
-  return {"question_tag":[dict(row) for row in rows]}
+    results = (
+        db.session.query(Answer.id.label("answer_id"), Tag.id.label("tag_id"), Tag.tag_name)
+        .join(AnsTag, Answer.id == AnsTag.ans_id)
+        .join(Tag, AnsTag.tag_id == Tag.id)
+        .all()
+    )
+
+    answer_dict = {}
+    for ans_id, tag_id, tag_name in results:
+        if ans_id not in answer_dict:
+            answer_dict[ans_id] = []
+        answer_dict[ans_id].append({"id": tag_id, "tag": tag_name})
+
+    return {"ans_tag": [{"answer_id": k, "tags": v} for k, v in answer_dict.items()]}
+
+
 
 @teacher.route('/insert_teacher',methods=["POST"])
 def insert_teacher():
   data = request.get_json()
-  id = data.get('teacherId')
+  teacher_id = data.get('teacher_id')
   teacher_name = data.get('name')
-  hash_pass = data.get('password')
-  # SQL文
-  sql = sql_text("INSERT INTO teacher(id,name,hash_pass) VALUES(:id,:name,:hash_pass)")
-  # SQL実行
-  db.session.execute(sql,{"id":id,"name":teacher_name,"hash_pass":hash_pass})
+  password = data.get('password')
+
+  if not teacher_id or not password:
+    return jsonify({'result': 'false', 'message': 'IDとパスワードは必須です'}), 400
+
+  # ID重複チェック
+  if Student.query.get(teacher_id) or Teacher.query.get(teacher_id):
+    return jsonify({'result': 'false', 'message': '既に存在するIDです'}), 400
+
+  new_teacher = Teacher(
+    id=teacher_id,
+    name=teacher_name,
+  )
+  new_teacher.set_password(password)
+  db.session.add(new_teacher)
   db.session.commit()
-  # 辞書型で返す
-  return jsonify({'result': 'いいね！'})
+
+  return jsonify({'result': 'success', 'message': f'{teacher_name}を登録しました'})
 
 @teacher.route('/select_all_teacher',methods=["GET"])
 def select_all_teacher():
@@ -86,7 +101,6 @@ def select_all_teacher():
 def delete_teacher():
   data = request.get_json()
   teacher_id = data.get('teacher_id')
-  print("届いてるよ")
   # SQL文
   sql = sql_text("DELETE FROM teacher WHERE ID = :teacher_id")
   # SQL実行
@@ -100,14 +114,11 @@ def edit_teacher():
   data = request.get_json()
   teacher_id = data.get('teacher_id')
   teacher_name = data.get('teacher_name')
-  password = data.get('password')
-  print("届いてるよ")
   # SQL文
-  sql = sql_text("UPDATE teacher set name = :teacher_name,hash_pass = :password WHERE ID = :teacher_id")
+  sql = sql_text("UPDATE teacher set name = :teacher_name WHERE ID = :teacher_id")
   # SQL実行
   db.session.execute(sql,{
     "teacher_name":teacher_name,
-    "password":password,
     "teacher_id":teacher_id,
     })
   db.session.commit()
@@ -143,33 +154,50 @@ def edit_student():
   data = request.get_json()
   student_id = data.get('student_id')
   student_name = data.get('student_name')
-  password = data.get('password')
   print("届いてるよ")
   # SQL文
-  sql = sql_text("UPDATE student set name = :student_name,hash_pass = :password WHERE ID = :student_id")
+  sql = sql_text("UPDATE student set name = :student_name WHERE ID = :student_id")
   # SQL実行
   db.session.execute(sql,{
     "student_name":student_name,
-    "password":password,
     "student_id":student_id,
     })
   db.session.commit()
   # 辞書型で返す
   return jsonify({'result': 'いいね！'})
 
-@teacher.route('/insert_student',methods=["POST"])
+@teacher.route('/insert_student', methods=["POST"])
 def insert_student():
-  data = request.get_json()
-  student_id = data.get('student_id')
-  student_name = data.get('student_name')
-  hash_pass = data.get('password')
-  # SQL文
-  sql = sql_text("INSERT INTO student(id,name,hash_pass) VALUES(:student_id,:student_name,:hash_pass)")
-  # SQL実行
-  db.session.execute(sql,{"student_id":student_id,"student_name":student_name,"hash_pass":hash_pass})
-  db.session.commit()
-  # 辞書型で返す
-  return jsonify({'result': 'いいね！'})
+    data = request.get_json()
+    student_id = data.get('student_id')
+    student_name = data.get('student_name')
+
+    # 学生テーブルと教師テーブルで重複チェック
+    sql = sql_text("""
+        SELECT COUNT(*) AS cnt
+        FROM (
+            SELECT id FROM student WHERE id = :student_id
+            UNION ALL
+            SELECT id FROM teacher WHERE id = :student_id
+        ) AS sub
+    """)
+    result = db.session.execute(sql, {"student_id": student_id})
+    row = result.fetchone()
+
+    if row[0] > 0:
+        return jsonify({'message': '既に存在するIDです', 'result': 'false'})
+
+    # 存在しなければ登録
+    sql_insert = sql_text("""
+        INSERT INTO student(id, name)
+        VALUES(:student_id, :student_name)
+    """)
+    db.session.execute(sql_insert, {"student_id": student_id, "student_name": student_name})
+    db.session.commit()
+
+    return jsonify({'message': '登録完了','result': 'success'})
+
+  
 
 @teacher.route('/answer',methods=["POST"])
 def answer():
@@ -177,16 +205,16 @@ def answer():
   question_id = data.get('question_id')
   answerText = data.get('answerText')
   tagsItems = data.get('tagsItems')
+  teacher_id = data.get('teacher_id')
   ans_id = uuid.uuid4();
-  print(tagsItems)
-  print(type(tagsItems))
+  print(teacher_id)
   # SQL文
   sql1 = sql_text("INSERT INTO answer(id,content,tea_id) VALUES(:id,:content,:tea_id)")
   # SQL実行
   db.session.execute(sql1,{
     "id":ans_id,
     "content":answerText,
-    "tea_id":'test2'
+    "tea_id":teacher_id
   })
   
   sql2 = sql_text("INSERT INTO anstag VALUES(:tag_id,:ans_id)")
@@ -203,7 +231,7 @@ def answer():
       "question_id":question_id
     })
 
-    sql4 = sql_text("UPDATE qa SET ansed_id = :ans_id WHERE que_id = :question_id")
+    sql4 = sql_text("UPDATE qa SET ans_id = :ans_id WHERE que_id = :question_id")
     db.session.execute(sql4,{
       "ans_id":ans_id,
       "question_id":question_id
@@ -212,3 +240,18 @@ def answer():
   db.session.commit()
   # 辞書型で返す
   return jsonify({'result': 'いいね！'})
+
+@teacher.route('/change_pass',methods=["POST"])
+def change_pass():
+  data = request.get_json()
+  teacher_id = data.get('teacher_id')
+  print("届いてるよ")
+  # SQL文
+  sql = sql_text("UPDATE teacher set change_pass = true WHERE ID = :teacher_id")
+  # SQL実行
+  db.session.execute(sql,{
+    "teacher_id":teacher_id
+  })
+  db.session.commit()
+  # 辞書型で返す
+  return jsonify({'result': '成功'})

@@ -64,7 +64,7 @@ export default function HistoryDetail() {
         <Text style={styles.content}>{question.content}</Text>
       </View>
 
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.push("/(student)/standby")}>
         <Text style={styles.backButtonText}>戻る</Text>
       </TouchableOpacity>
     </ScrollView>
