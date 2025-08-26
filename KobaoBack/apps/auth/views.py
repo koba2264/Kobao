@@ -88,17 +88,3 @@ def logout():
 def me():
     # 誰のトークンか（identity）と、追加クレーム（role）にアクセス
     return jsonify({"user_id": get_jwt_identity(), "role": get_jwt().get("role")})
-
-@auth.route('/create_dummy_student')
-def create_dummy_student():
-    # 仮アカウント情報
-    id = "test3"
-    password = "pass"
-    name = "テスト生徒"
-    # パスワードをハッシュ化
-    hash_pass = bcrypt.generate_password_hash(password).decode('utf-8')
-    # Studentモデルのインスタンス作成
-    student = Student(id=id, name=name, hash_pass=hash_pass)
-    db.session.add(student)
-    db.session.commit()
-    return '', 200
