@@ -7,6 +7,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { api } from '@/src/api';
 
+
 type Message = {
   id: string;
   content: string;

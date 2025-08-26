@@ -5,9 +5,8 @@ import React, { useEffect, useState } from 'react';
 import {
   View, Text, ActivityIndicator, StyleSheet, ScrollView, Pressable, useColorScheme
 } from 'react-native';
+
 import { api } from "@/src/api";
-
-
 
 // chatbotからの返答用
 type QuestionAnswer = {
