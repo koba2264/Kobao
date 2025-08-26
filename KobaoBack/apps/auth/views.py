@@ -1,11 +1,12 @@
 from flask import Blueprint, jsonify, request
-from apps.app import db,jwt
+from apps.app import db,jwt,bcrypt
 from apps.models import Student, Teacher
 from flask_jwt_extended import (
     create_access_token, create_refresh_token,
     jwt_required, get_jwt, get_jwt_identity
 )
 from datetime import datetime, timedelta,timezone
+from flask_bcrypt import Bcrypt
 
 auth = Blueprint(
     "auth",
@@ -15,7 +16,6 @@ auth = Blueprint(
 # 一時的にブラックリストを作成、後で変更する
 REVOKED = set()
 
-# token_in_blocklist_loader:
 # 受信した JWT の jti（一意ID）が失効リストにあれば拒否
 @jwt.token_in_blocklist_loader
 def check_if_revoked(jwt_header, jwt_payload):
@@ -30,7 +30,6 @@ def login():
     password = data.get('password')
     
 
-    # 生徒と教師の判別用
     role = "student"
     # 生徒の認証
     user = Student.query.filter_by(id=id).first()
@@ -38,32 +37,33 @@ def login():
     # 生徒が存在しない場合は教師を確認
     if not user:
         user = Teacher.query.filter_by(id=id).first()
-        change_pass = bool(user.change_pass)
-        now = datetime.now(timezone.utc)
-        last_update = user.update_at
+
         # 教師が存在する場合はroleをteacherに変更
         if user:
             role  = "teacher"
-            if change_pass or now - last_update > timedelta(days=30):
-                role = "change"
         # ユーザーが存在しない場合はエラーを返す
         else:
+            # 認証失敗
             return jsonify({'result': 'false'}), 401
     
     if not user.check_password(password):
         return jsonify({'result': 'false'}), 401
+#   パスワードリセット用
+    change_pass = bool(user.change_pass)
+    now = datetime.now(timezone.utc)
+    last_update = user.update_at
+    if change_pass or now - last_update > timedelta(days=30):
+        role = "change"
+    
     # ユーザーが存在する場合はトークンを作成
     claims = {"role": role}
-    # アクセストークンの作成
+    # アクセストークン作成
     access  = create_access_token(identity=id, additional_claims=claims)
-    # リフレッシュトークンの作成
+    # リフレッシュトークン作成
     refresh = create_refresh_token(identity=id, additional_claims=claims)
-
     return jsonify({'result': 'success', "access": access, "refresh": refresh, "role": role}), 200
 
-# --- リフレッシュ（ローテーション採用）---
-# ・@jwt_required(refresh=True) なので「refreshトークン」でのみ呼べる
-# ・古い refresh の jti を失効させてから、新しい refresh を発行（盗難対策）
+# トークンの再発行
 @auth.route('/refresh', methods=['POST', 'OPTIONS'])
 @jwt_required(refresh=True)
 def refresh():
@@ -85,9 +85,7 @@ def refresh():
 
     return jsonify({"access": new_access, "refresh": new_refresh}), 200
 
-# --- ログアウト ---
-# ・@jwt_required(refresh=True) のため、必ず「refreshトークン」を送る
-# ・現在の refresh を失効リストに登録 → 以後は使えない
+# ログアウト
 @auth.route('/logout', methods=['POST', 'OPTIONS'])
 @jwt_required(refresh=True)
 def logout():
@@ -96,11 +94,13 @@ def logout():
     REVOKED.add(get_jwt()["jti"])
     return '', 200
 
-# --- 認証が必要なAPI（例）---
-# ・@jwt_required() は「accessトークン」で呼ぶ（refreshではNG）
+
+# idとroleの取得
 @auth.get("/me")
 @jwt_required()
 def me():
+    if request.method == 'OPTIONS':
+        return '', 200
     # 誰のトークンか（identity）と、追加クレーム（role）にアクセス
     return jsonify({"user_id": get_jwt_identity(), "role": get_jwt().get("role")})
 
@@ -124,3 +124,4 @@ def change_pass():
   db.session.commit()
   # 辞書型で返す
   return jsonify({'result': 'いいね！'})
+

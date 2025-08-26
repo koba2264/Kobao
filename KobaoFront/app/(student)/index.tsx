@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
+import {api} from '@/src/api';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, useColorScheme } from 'react-native';
 
 const Home: React.FC = () => {
@@ -30,7 +31,7 @@ const Home: React.FC = () => {
 
   useFocusEffect(
   React.useCallback(() => {
-    fetch("http://127.0.0.1:5000/student/messages")
+    fetch(`${api.defaults.baseURL}/student/messages`)
       .then(res => res.json())
       .then((data: Question[]) => {
         setQuestions(data);
@@ -86,10 +87,10 @@ const Home: React.FC = () => {
       </View>
 
       {/* ボタン部分 */}
-      <View style={styles.buttonContainer}>
+      <View style={[styles.buttonContainer, { flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 16 }]}>
         {hasPendingQuestions && (
           <TouchableOpacity
-            style={[styles.stnButton, { backgroundColor: isDark ? "#ff981a" : "#ff981aff" }]}
+            style={[styles.sideButton, { backgroundColor: isDark ? "#ff981a" : "#ff981aff" }]}
             onPress={() => router.push("/standby")}
           >
             <Text style={styles.askButtonText}>回答待ち{pendingCount}件</Text>
@@ -97,7 +98,7 @@ const Home: React.FC = () => {
         )}
 
         <TouchableOpacity
-          style={[styles.askButton, { backgroundColor: isDark ? "#ff981a" : "#ff981aff" }]}
+          style={[styles.sideButton, { backgroundColor: isDark ? "#ff981a" : "#ff981aff" }]}
           onPress={() => router.push("/chat")}
         >
           <Text style={styles.askButtonText}>質問する</Text>
@@ -175,4 +176,11 @@ const styles = StyleSheet.create({
     padding: 16,
     flex: 1,
   },
+  sideButton: {
+  flex: 1,          
+  borderRadius: 10,
+  paddingVertical: 12,
+  alignItems: "center",
+  marginHorizontal: 5,  
+},
 });

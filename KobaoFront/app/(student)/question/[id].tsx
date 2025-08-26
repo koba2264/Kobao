@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, useColorScheme } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { api } from "@/src/api";
 
 type QuestionDetail = {
   id: string;
@@ -25,7 +26,7 @@ export default function HistoryDetail() {
   useEffect(() => {
     if (!id) return;
 
-    fetch(`http://127.0.0.1:5000/student/answer/${id}`)
+    fetch(`${api.defaults.baseURL}/student/answer/${id}`)
       .then((res) => res.json())
       .then((data: QuestionDetail) => {
         setQuestion(data);
@@ -33,7 +34,7 @@ export default function HistoryDetail() {
 
         // 既読でなければ既読更新
         if (!data.is_read) {
-          fetch(`http://127.0.0.1:5000/student/is_read/${id}`, {
+          fetch(`${api.defaults.baseURL}/student/is_read/${id}`, {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ is_read: true }),
