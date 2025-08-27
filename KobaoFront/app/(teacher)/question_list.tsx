@@ -24,7 +24,7 @@ export default function QuestionListScreen() {
   const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null);
  
   const [tagsOpen, setTagsOpen] = useState(false);
-  const [tagsValue, setTagsValue] = useState<string[]>([]);
+  const [tagsValue, setTagsValue] = useState<TagItem[]>([]);
   const [tagsItems, setTagsItems] = useState<TagItem[]>([]);
   
   const select_all_tag = async () =>{
@@ -98,7 +98,7 @@ export default function QuestionListScreen() {
         body: JSON.stringify({ 
           question_id: selectedQuestionId,
           answerText: answerText,
-          tagsItems: tagsItems,
+          tagsItems: tagsValue,
           teacher_id:status.user_id
         }),
       });
@@ -173,10 +173,25 @@ export default function QuestionListScreen() {
               min={0}
               max={5}
               open={tagsOpen}
-              value={tagsValue}
+              value={tagsValue.map(t => t.value)}
               items={tagsItems}
               setOpen={setTagsOpen}
-              setValue={setTagsValue}
+              setValue={(callback) => {
+                setTagsValue(prev => {
+                  // callback が関数の場合は prevValues を渡して呼び出す
+                  let selectedValues: string[];
+                  if (typeof callback === "function") {
+                    const result = callback(prev.map(t => t.value));
+                    selectedValues = Array.isArray(result) ? result : [result];
+                  } else {
+                    selectedValues = Array.isArray(callback) ? callback : [callback];
+                  }
+
+                  // 選択された value に基づき TagItem 配列を作成
+                  const newTags = tagsItems.filter(item => selectedValues.includes(item.value));
+                  return newTags;
+                });
+              }}
               setItems={setTagsItems}
               placeholder="タグを選択してください"
               listMode="MODAL"
@@ -187,15 +202,15 @@ export default function QuestionListScreen() {
             />
  
             {tagsValue.length > 0 && (
-              <>
-                <Text style={styles.selectedTags}>
-                  選択中のタグ: {tagsValue.join(", ")}
-                </Text>
-                <TouchableOpacity onPress={() => setTagsValue([])} style={styles.clearButton}>
-                  <Text style={styles.clearButtonText}>× タグをすべてクリア</Text>
-                </TouchableOpacity>
-              </>
-            )}
+            <>
+              <Text style={styles.selectedTags}>
+                選択中のタグ: {tagsValue.map(tag => tag.label).join(", ")}
+              </Text>
+              <TouchableOpacity onPress={() => setTagsValue([])} style={styles.clearButton}>
+                <Text style={styles.clearButtonText}>× タグをすべてクリア</Text>
+              </TouchableOpacity>
+            </>
+          )}
  
             <View style={styles.buttonSpacing}>
               <Button title="新しいタグを追加" onPress={handleAddTag} />

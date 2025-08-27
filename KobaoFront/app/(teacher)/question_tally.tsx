@@ -30,12 +30,12 @@ export default function QuestionByTagScreen() {
 
   const select_all_question = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/teacher/select_question_tag', { method: 'GET' });
+      const response = await fetch('http://127.0.0.1:5000/teacher/select_question_tag', { method: 'POST' });
       const data = await response.json();
       const Qestions_tag = data.ans_tag.map((ans_tag: any) => ({
-        id: ans_tag.id,
-        title: ans_tag.content,
-        tags: [ans_tag.tag_name.trim()],
+        id: ans_tag.que_id,
+        title: ans_tag.question_content,
+        tags: ans_tag.tags,
       }));
       setQuestions(Qestions_tag);
       setFilteredQuestions(Qestions_tag);
@@ -84,6 +84,7 @@ export default function QuestionByTagScreen() {
             dropDownContainerStyle={styles.dropdownContainer}
           />
           <FlatList
+            style={{ flex: 1 }}
             data={filteredQuestions}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (

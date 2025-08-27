@@ -6,7 +6,6 @@ import { useFocusEffect } from "@react-navigation/native";
 export default function TeacherRegisterScreen() {
   const [teacher_id, setTeacher_id] = useState("");
   const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
   const [message, setMessage] = useState('');
 
   useFocusEffect(
@@ -17,11 +16,11 @@ export default function TeacherRegisterScreen() {
 
  
   const handleRegister = async () => {
-    if (!teacher_id || !name || !password) {
+    if (!teacher_id || !name) {
       Alert.alert("エラー", "全ての項目を入力してください");
       return;
     }
-    console.log("教師登録:", { teacher_id, name, password });
+    console.log("教師登録:", { teacher_id, name});
     Alert.alert("登録完了", `教師 ${name} を登録しました`);
     try {
       const response = await fetch('http://127.0.0.1:5000/teacher/insert_teacher', {
@@ -31,8 +30,7 @@ export default function TeacherRegisterScreen() {
         },
         body: JSON.stringify({ 
           teacher_id: teacher_id,
-          name:name,
-          password:password
+          name:name
         }),
       });
     
@@ -44,7 +42,6 @@ export default function TeacherRegisterScreen() {
       }else if(data.result === 'success'){
         setTeacher_id("");
         setName("");
-        setPassword("");
       }
     } catch (error) {
       Alert.alert("エラー", "教員登録中に問題が発生しました");
@@ -66,13 +63,6 @@ export default function TeacherRegisterScreen() {
         placeholder="名前"
         value={name}
         onChangeText={setName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="パスワード"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
       />
       <Button title="登録" onPress={handleRegister} />
       {message ? <Text style={styles.error}>{message}</Text> : null} 

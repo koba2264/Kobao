@@ -1,11 +1,19 @@
-import React, { useState } from "react";
+import React, { useState,useCallback } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
  
 export default function TagAddScreen() {
   const [newTag, setNewTag] = useState("");
   const router = useRouter();
   const { callbackId } = useLocalSearchParams();
+  const [message, setMessage] = useState('');
+
+  useFocusEffect(
+    useCallback(() => {
+      setMessage('');
+    }, [])
+  );
  
   const handleAddTag = async () => {
     if (!newTag.trim()) {
@@ -19,7 +27,7 @@ export default function TagAddScreen() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ tag_name: newTag }),
+          body: JSON.stringify({ tag_name: newTag.trim() }),
         });
 
         const data = await response.json();
@@ -27,12 +35,14 @@ export default function TagAddScreen() {
       } catch (error) {
       Alert.alert("エラー", "タグ追加中に問題が発生しました");
     }
-      router.back();
-    } 
+    setNewTag("");
+    setMessage("タグを追加しました");
+  } 
  
   return (
     <View style={styles.container}>
       <Text style={styles.label}>新しいタグ名を入力してください:</Text>
+      {message ? <Text style={styles.error}>{message}</Text> : null} 
       <TextInput
         style={styles.input}
         value={newTag}
@@ -67,5 +77,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: "#fff",
     color: "#000",
+  },
+  error: {
+    color: 'red', // 赤文字
+    marginTop: 12,
   },
 });

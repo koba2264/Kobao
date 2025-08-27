@@ -29,7 +29,7 @@ def login():
     id = data.get('id')
     password = data.get('password')
     
-
+    change_pass_jugde = "no_change"
     # 生徒と教師の判別用
     role = "student"
     # 生徒の認証
@@ -38,17 +38,18 @@ def login():
     # 生徒が存在しない場合は教師を確認
     if not user:
         user = Teacher.query.filter_by(id=id).first()
-        change_pass = bool(user.change_pass)
-        now = datetime.now(timezone.utc)
-        last_update = user.update_at
         # 教師が存在する場合はroleをteacherに変更
         if user:
             role  = "teacher"
-            if change_pass or now - last_update > timedelta(days=30):
-                role = "change"
         # ユーザーが存在しない場合はエラーを返す
         else:
             return jsonify({'result': 'false'}), 401
+        
+    change_pass = bool(user.change_pass)
+    now = datetime.now(timezone.utc)
+    last_update = user.update_at
+    if change_pass or now - last_update > timedelta(days=30):
+        change_pass_jugde = "change"
     
     if not user.check_password(password):
         return jsonify({'result': 'false'}), 401
@@ -59,7 +60,7 @@ def login():
     # リフレッシュトークンの作成
     refresh = create_refresh_token(identity=id, additional_claims=claims)
 
-    return jsonify({'result': 'success', "access": access, "refresh": refresh, "role": role}), 200
+    return jsonify({'result': 'success', "access": access, "refresh": refresh, "role": role,"change_pass_judge":change_pass_jugde}), 200
 
 # --- リフレッシュ（ローテーション採用）---
 # ・@jwt_required(refresh=True) なので「refreshトークン」でのみ呼べる
@@ -113,14 +114,28 @@ def admin():
         return jsonify({"admin": False}), 404
     return jsonify({"admin": is_admin})
 
-@auth.route('/change_pass',methods=["POST"])
-def change_pass():
+@auth.route('/change_pass_teacher',methods=["POST"])
+def change_pass_teacher():
   data = request.get_json()
   teacher_id = data.get('teacher_id')
   password = data.get('password')
   teacher = Teacher.query.filter_by(id=teacher_id).first()
   teacher.set_password(password)
   teacher.change_pass = False
+  teacher.update_at = datetime.now(timezone.utc)
+  db.session.commit()
+  # 辞書型で返す
+  return jsonify({'result': 'いいね！'})
+
+@auth.route('/change_pass_student',methods=["POST"])
+def change_pass_student():
+  data = request.get_json()
+  student_id = data.get('student_id')
+  password = data.get('password')
+  student = Student.query.filter_by(id=student_id).first()
+  student.set_password(password)
+  student.change_pass = False
+  student.update_at = datetime.now(timezone.utc)
   db.session.commit()
   # 辞書型で返す
   return jsonify({'result': 'いいね！'})
