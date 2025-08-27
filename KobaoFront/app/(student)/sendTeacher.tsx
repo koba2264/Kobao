@@ -1,27 +1,33 @@
+import { getStatus } from '@/src/auth';
 import { router, useLocalSearchParams } from 'expo-router';
 import React from 'react';
-
+import {api} from '@/src/api';
 import { 
   View, Text, StyleSheet, ScrollView, Pressable, Alert, useColorScheme 
 } from 'react-native';
 
 export default function ResultScreen() {
-  const { message } = useLocalSearchParams();
-  const displayMessage = Array.isArray(message) ? message[0] : message ?? '';
+  const { message, id } = useLocalSearchParams<{ message: string; id: string }>();
+  const displayMessage = message || '質問内容がありません。';
+  const que_id = id ;
   const scheme = useColorScheme();
   const isDark = scheme === "dark";
   const styles = getStyles(isDark);
+  const [status, setStatus] = React.useState<any>(null);
+  React.useEffect(() => {
+    getStatus().then(setStatus);
+  }, []);
+  console.log("Status:", status);
 
   const onSendPress = async () => {
       try {
-          const response = await fetch("http://127.0.0.1:5000/student/receive", {  
+          const response = await fetch(`${api.defaults.baseURL}/student/receive`, {  
               method: "POST",
               headers: {
                   "Content-Type": "application/json",
               },
-              body: JSON.stringify({ message: displayMessage }),
+              body: JSON.stringify({ message: displayMessage, que_id: que_id, stu_id: status.user_id }),
           });
-
 
             if (response.ok) {
                               Alert.alert(
