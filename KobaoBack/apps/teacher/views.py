@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from sqlalchemy import text as sql_text
 from apps.app import db
-from apps.models import Student, Teacher, Answer, AnsTag, Tag
+from apps.models import Student, Teacher, Answer, AnsTag, Tag,QA, Question
 import uuid
 from flask_cors import cross_origin
 
@@ -44,37 +44,40 @@ def select_question():
 @teacher.route('/select_question_tag', methods=["POST"])
 def select_question_tag():
     results = (
-        db.session.query(Answer.id.label("answer_id"), Tag.id.label("tag_id"), Tag.tag_name)
-       .join(AnsTag, Answer.id == AnsTag.ANS_ID)
-        .join(Tag, AnsTag.TAG_ID == Tag.ID)
-        .all()
+    db.session.query(
+        Question.id.label("que_id"),
+        Question.content.label("question_content"),
+        Answer.content.label("answer_content"),
+        Tag.tag_name
     )
     .join(QA, QA.que_id == Question.id)
     .join(Answer, QA.ans_id == Answer.id)
     .join(AnsTag, Answer.id == AnsTag.ans_id)
     .join(Tag, AnsTag.tag_id == Tag.id)
-  )
+    .all()
+)
 
-  answer_dict = {}
-  for que_id,question_content, answer_content, tag_name in results:
-    if que_id not in answer_dict:
-      answer_dict[que_id] = {
-        "question_content": question_content,"answer_content":answer_content, 
-        "tags": []
-      }
-    answer_dict[que_id]["tags"].append(tag_name.strip())
-  print(answer_dict)
+
+    answer_dict = {}
+    for que_id,question_content, answer_content, tag_name in results:
+        if que_id not in answer_dict:
+            answer_dict[que_id] = {
+                "question_content": question_content,"answer_content":answer_content, 
+                "tags": []
+            }
+        answer_dict[que_id]["tags"].append(tag_name.strip())
+    print(answer_dict)
 
     # 辞書をリストに変換して返す
-  return {
-    "ans_tag": [
-      {"que_id": k, 
-       "question_content": v["question_content"],
-       "answer_content": v["answer_content"],
-       "tags": v["tags"]}
-      for k, v in answer_dict.items()
-    ]
-  }
+    return {
+        "ans_tag": [
+        {"que_id": k, 
+        "question_content": v["question_content"],
+        "answer_content": v["answer_content"],
+        "tags": v["tags"]}
+        for k, v in answer_dict.items()
+        ]
+    }
 
 # -------------------------
 # 教師関連

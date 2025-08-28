@@ -4,12 +4,6 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
-
-from flask_bcrypt import Bcrypt
-from qdrant_client import QdrantClient
-from sentence_transformers import SentenceTransformer
-
-from flask_bcrypt import Bcrypt
 from qdrant_client import QdrantClient
 from sentence_transformers import SentenceTransformer
 
@@ -43,8 +37,6 @@ def create_app(config_key):
     app.register_blueprint(teacher_views.teacher, url_prefix="/teacher")
 
     app.register_blueprint(auth_views.auth, url_prefix="/auth")
-
-    app.register_blueprint(chatbot_views.chatbot, url_prefix="/chatbot")
 
     app.register_blueprint(student_views.student, url_prefix="/student")
 
