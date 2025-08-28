@@ -9,8 +9,6 @@ student = Blueprint(
 
 @student.route('/receive', methods=["POST"])
 def receive():
-    output = "受信しました"
-    print(output)
     data = request.get_json()
     message = data.get('message')
     stu_id = data.get('stu_id')
@@ -18,7 +16,20 @@ def receive():
     new_msg = Question(id = que_id, content=message,stu_id=stu_id, ansed_flag=False, is_read=False)
     db.session.add(new_msg)
     db.session.commit()
-    print(data.get('content'))
+    return jsonify({'result': '送信しました'})
+
+@student.route('/QA_receive', methods=["POST"])
+def QA_recive():
+    data = request.get_json()
+    question_text = data.get('question')
+    stu_id = data.get('stu_id')
+    que_id = data.get('id')
+    ans_id = data.get('ans_id')
+    new_question = Question(id = que_id, content=question_text,stu_id=stu_id, ansed_flag=True, is_read=True)
+    new_QA = QA(que_id = que_id, ans_id = ans_id)
+    db.session.add(new_question)
+    db.session.add(new_QA)
+    db.session.commit()
     return jsonify({'result': '送信しました'})
 
 
@@ -37,9 +48,6 @@ def get_message_detail(question_id):
         "stu_id": question.stu_id,
         "is_read": question.is_read
     })
-
-
-
 
 @student.route('/messages', methods=["GET"])
 def get_messages():

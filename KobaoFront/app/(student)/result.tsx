@@ -1,4 +1,5 @@
 import "react-native-get-random-values";
+import { getStatus } from '@/src/auth';
 import { v4 as uuidv4 } from "uuid";
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState } from 'react';
@@ -71,17 +72,24 @@ export default function ResultScreen() {
     setModalVisible(true);
   };
 
+    const [status, setStatus] = React.useState<any>(null);
+    React.useEffect(() => {
+      getStatus().then(setStatus);
+    }, []);
+
   // 選択QAをFlaskに送信
   // 解決ボタンでモーダルQAをFlaskに送信
   const resolve = async () => {
     if (!modalQA) return;
 
     try {
-      const response = await fetch(`${api.defaults.baseURL}/chatbot/receive`, {
+      const response = await fetch(`${api.defaults.baseURL}/student/QA_receive`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id,
+          stu_id: status.user_id,
+          ans_id: modalQA.ans_id,
           question: modalQA.que_text,
           answer: modalQA.ans_text,
         }),
