@@ -10,6 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
+import { api } from "@/src/api";
  
 type Teacher = {
   id: string;
@@ -25,7 +26,7 @@ export default function TeacherListScreen() {
 
   const select_all_teacher = async () =>{
       try {
-        const response = await fetch('http://127.0.0.1:5000/teacher/select_all_teacher', {
+        const response = await fetch(`${api.defaults.baseURL}/teacher/select_all_teacher`, {
         method: 'GET',
         headers: {'Content-Type': 'application/json'}
         })
@@ -66,7 +67,7 @@ export default function TeacherListScreen() {
         text: "削除",
         onPress: async () => {
           try {
-            const response = await fetch('http://127.0.0.1:5000/teacher/delete_teacher', {
+            const response = await fetch(`${api.defaults.baseURL}/teacher/delete_teacher`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -89,7 +90,7 @@ export default function TeacherListScreen() {
   const saveEdit = async () => {
     if (selectedTeacher) {
       try {
-        const response = await fetch('http://127.0.0.1:5000/teacher/edit_teacher', {
+        const response = await fetch(`${api.defaults.baseURL}/teacher/edit_teacher`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -100,7 +101,7 @@ export default function TeacherListScreen() {
         }),
         });
       } catch (error) {
-        Alert.alert("エラー", "教師編集中にエラー");
+        Alert.alert("エラー", "教員編集中にエラー");
       }
       setTeachers((prev) =>
         prev.map((t) => (t.id === selectedTeacher.id ? selectedTeacher : t))
@@ -113,7 +114,7 @@ export default function TeacherListScreen() {
   const change_pass = async () => {
     if (selectedTeacher) {
       try {
-        const response = await fetch('http://127.0.0.1:5000/teacher/change_pass_request_teacher', {
+        const response = await fetch(`${api.defaults.baseURL}/teacher/change_pass`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -131,7 +132,7 @@ export default function TeacherListScreen() {
         prev.map(t => t.id === selectedTeacher.id ? { ...t, change_pass: true } : t)
       );
       } catch (error) {
-        Alert.alert("エラー", "教師編集中にエラー");
+        Alert.alert("エラー", "教員編集中にエラー");
       }
     }
   }
@@ -158,7 +159,7 @@ return (
     <Modal visible={modalVisible} transparent animationType="slide">
       <View style={styles.modalContainer}>
         <View style={styles.modalBox}>
-          <Text style={styles.modalTitle}>教師編集</Text>
+          <Text style={styles.modalTitle}>教員編集</Text>
           <TextInput
             style={styles.input}
             placeholder="名前"

@@ -16,6 +16,9 @@ export default function QuestionByTagScreen() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tagItems, setTagItems] = useState([{ label: "", value: "" }]);
 
+  const selectedTagsText = selectedTags.length > 0 ? `選択中: ${selectedTags.join(", ")}` : "タグを選択";
+
+
   // タグ一覧取得
   const select_all_tag = async () => {
     try {
@@ -37,8 +40,8 @@ export default function QuestionByTagScreen() {
       console.log(response);
       const data = await response.json();
       const Qestions_tag = data.ans_tag.map((ans_tag: any) => ({
-        id: ans_tag.answer_id,       // ans_tag の answer_id を質問IDとして利用
-        title: ans_tag.tags.map((t: any) => t.tag).join(", "), // 仮にタイトルにタグを表示
+        id: ans_tag.answer_id,
+        title: ans_tag.question_content,
         tags: ans_tag.tags.map((t: any) => t.tag)
       }));
       setQuestions(Qestions_tag);
@@ -90,6 +93,7 @@ export default function QuestionByTagScreen() {
             placeholder="タグを選択"
             style={styles.dropdown}
             dropDownContainerStyle={styles.dropdownContainer}
+            multipleText={selectedTags.length > 0 ? `選択中: ${selectedTags.join(", ")}` : "タグを選択"}
           />
 
           <FlatList
@@ -127,7 +131,7 @@ const styles = StyleSheet.create({
   heading: { fontSize: 18, fontWeight: "bold", marginBottom: 12, color: "#000000ff" },
   dropdown: { marginBottom: 16, borderColor: "#FF8C00" },
   dropdownContainer: { borderColor: "#FF8C00" },
-  card: { padding: 12, backgroundColor: "#FF8C00", borderRadius: 8, marginBottom: 12 },
+  card: { padding: 12, backgroundColor: "#fbc37eff", borderRadius: 8, marginBottom: 12 },
   title: { fontSize: 16, fontWeight: "bold" },
   tags: { marginTop: 4, color: "#555" },
   emptyText: { textAlign: "center", color: "#fff", marginTop: 20 },

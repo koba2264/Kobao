@@ -2,6 +2,7 @@ import { Drawer } from "expo-router/drawer";
 import React, { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { getTokens } from "@/src/token";
+import { api } from "@/src/api";
 
 export default function Layout() {
   const [status, setStatus] = useState<{ admin?: boolean } | null>(null);
@@ -10,7 +11,7 @@ export default function Layout() {
     (async () => {
       try {
         const tokens = await getTokens();
-        const response = await fetch('http://127.0.0.1:5000/auth/admin', {
+        const response = await fetch(`${api.defaults.baseURL}/auth/admin`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -115,8 +116,8 @@ export default function Layout() {
       <Drawer.Screen
         name="t_register"
         options={{
-          title: "教師登録",
-          drawerLabel: "教師登録",
+          title: "教員登録",
+          drawerLabel: "教員登録",
           drawerIcon: ({ color, size }) => <Ionicons name="person-add-outline" color={color} size={size} />,
           drawerItemStyle: { display: status.admin ? 'flex' : 'none' },
         }}
@@ -124,8 +125,8 @@ export default function Layout() {
       <Drawer.Screen
         name="t_list"
         options={{
-          title: "教師一覧",
-          drawerLabel: "教師一覧",
+          title: "教員一覧",
+          drawerLabel: "教員一覧",
           drawerIcon: ({ color, size }) => <Ionicons name="people-outline" color={color} size={size} />,
           drawerItemStyle: { display: status.admin ? 'flex' : 'none' },
         }}
