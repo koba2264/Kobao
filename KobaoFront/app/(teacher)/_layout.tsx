@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { getTokens } from "@/src/token";
 import { api } from "@/src/api";
+import { logout } from "@/src/auth";
+import { router } from "expo-router";
 
 export default function Layout() {
   const [status, setStatus] = useState<{ admin?: boolean } | null>(null);
@@ -129,6 +131,15 @@ export default function Layout() {
           drawerLabel: "教員一覧",
           drawerIcon: ({ color, size }) => <Ionicons name="people-outline" color={color} size={size} />,
           drawerItemStyle: { display: status.admin ? 'flex' : 'none' },
+        }}
+      />
+
+      <Drawer.Screen
+        name="logout"
+        options={{
+          title: "ログアウト",
+          drawerLabel: "ログアウト",
+          drawerIcon: ({ color, size }) => <Ionicons name="log-out-outline" color={color} size={size} />,
         }}
       />
     </Drawer>
