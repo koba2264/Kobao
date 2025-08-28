@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import {useFocusEffect,useRouter } from 'expo-router';
-import {api} from '@/src/api';
-
+import { useFocusEffect, useRouter } from 'expo-router';
+import { api } from '@/src/api';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, useColorScheme } from 'react-native';
+import { getStatus } from "@/src/auth";
 
 const Home: React.FC = () => {
   const router = useRouter();
@@ -20,16 +20,25 @@ const Home: React.FC = () => {
   };
 
   const [questions, setQuestions] = useState<Question[]>([]);
-
-    useFocusEffect(
+  const [status, setStatus] = React.useState<any>(null);
+  React.useEffect(() => {
+    getStatus().then(setStatus);
+  }, []);
+  useFocusEffect(
     React.useCallback(() => {
-      fetch(`${api.defaults.baseURL}/student/messages`)
+      if (!status?.user_id) return;
+
+      let isActive = true;
+      fetch(`${api.defaults.baseURL}/student/messagesHistory/${status.user_id}`)
         .then(res => res.json())
         .then((data: Question[]) => {
           setQuestions(data);
         })
         .catch(err => console.error("APIエラー:", err));
-    }, [])
+      return () => {
+        isActive = false;
+      };
+    }, [status?.user_id])
   );
 
   return (

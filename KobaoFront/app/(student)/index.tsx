@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import {api} from '@/src/api';
+import { api } from '@/src/api';
+
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, useColorScheme } from 'react-native';
+import { getStatus } from "@/src/auth";
 
 const Home: React.FC = () => {
   const router = useRouter();
@@ -27,19 +29,28 @@ const Home: React.FC = () => {
   const pendingCount = questions.filter(q => !q.ansed_flag).length;
   // 回答済みかつ未読のものだけ
   const answeredCount = questions.filter(q => q.ansed_flag && !q.is_read);
-
+  const [status, setStatus] = React.useState<any>(null);
+  React.useEffect(() => {
+    getStatus().then(setStatus);
+  }, []);
 
   useFocusEffect(
-  React.useCallback(() => {
-    fetch(`${api.defaults.baseURL}/student/messages`)
-      .then(res => res.json())
-      .then((data: Question[]) => {
-        setQuestions(data);
-      })
-      .catch(err => console.error("APIエラー:", err));
-  }, [])
-);
+    React.useCallback(() => {
+      if (!status?.user_id) return;
 
+      let isActive = true;
+      fetch(`${api.defaults.baseURL}/student/messagesHistory/${status.user_id}`)
+        .then(res => res.json())
+        .then((data: Question[]) => {
+          setQuestions(data);
+        })
+        .catch(err => console.error("APIエラー:", err));
+      return () => {
+        isActive = false;
+      };
+    }, [status?.user_id])
+  );
+      
   return (
     <View style={[styles.container, { backgroundColor: isDark ? "#000" : "#fff" }]}>
       <View style={styles.listContainer}>
@@ -177,10 +188,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sideButton: {
-  flex: 1,          
-  borderRadius: 10,
-  paddingVertical: 12,
-  alignItems: "center",
-  marginHorizontal: 5,  
-},
+    flex: 1,
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: "center",
+    marginHorizontal: 5,
+  },
 });
