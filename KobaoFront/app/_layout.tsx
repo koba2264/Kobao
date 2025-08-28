@@ -1,5 +1,6 @@
-import { Stack, Slot, useRouter } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useEffect } from 'react';
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { View, ActivityIndicator } from 'react-native';
 import { getTokens, saveTokens, clearTokens } from '@/src/token';
 import { api } from '@/src/api';
@@ -42,7 +43,7 @@ export default function RootLayout() {
   const router = useRouter();
 
   useEffect(() => {
-    // 描画が完了してから router.replace() を実行する
+    // Stack
     requestAnimationFrame(() => {
       bootstrapSession();
       // ログイン画面へ遷移
@@ -51,12 +52,15 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <Stack>
-      {/* Slot によって子画面の表示を管理 */}
-      <Stack.Screen name="(test)" options={{ headerShown: false }} />
-      <Stack.Screen name="(student)" options={{ headerShown: false }} />
-      <Stack.Screen name="(teacher)" options={{ headerShown: false }} />
-      <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
-    </Stack>
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }} edges={['top','bottom']}>
+        <Stack screenOptions= {{ headerShown: false }}>
+          <Stack.Screen name="(test)" />
+          <Stack.Screen name="(student)" />
+          <Stack.Screen name="(teacher)" />
+          <Stack.Screen name="(auth)/login" />
+        </Stack>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }

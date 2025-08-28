@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
-
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, useColorScheme } from 'react-native';
-
 import { useFocusEffect } from '@react-navigation/native';
-
 import { useRouter } from 'expo-router';
 import { api } from '@/src/api';
+import { getStatus } from '@/src/auth';
 
 type Message = {
   id: string;
@@ -19,40 +17,56 @@ export default function HistoryScreen() {
   const scheme = useColorScheme();
   const isDark = scheme === "dark";
   const styles = getStyles(isDark);
+  const [status, setStatus] = React.useState<any>(null);
+
+  useEffect(() => {
+    getStatus().then(setStatus);
+  }, []);
 
   useFocusEffect(
     React.useCallback(() => {
-      fetch(`${api.defaults.baseURL}/student/messages`)
+      if (!status?.user_id) return;
+
+      let isActive = true;
+      fetch(`${api.defaults.baseURL}/student/messagesHistory/${status.user_id}`)
         .then((response) => response.json())
-        .then((data: Message[]) => setMessages(data))
+        .then((data: Message[]) => {
+          if (isActive) setMessages(data);
+        })
         .catch((error) => console.error('Failed to fetch messages:', error));
-    }, [])
+
+      return () => { isActive = false; };
+    }, [status?.user_id])
   );
 
-  function goDetail(id: string): void {
+  const goDetail = (id: string) => {
     router.push({
       pathname: '/(student)/historyDetaile/[id]',
       params: { id },
     });
-  }
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>過去の質問一覧</Text>
       <FlatList
-        data={messages.filter((msg) => msg.is_read)}
+        data={messages.filter(msg => msg.is_read)}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <TouchableOpacity style={styles.card} onPress={() => goDetail(item.id)}>
+          <TouchableOpacity
+            style={[styles.card, item.is_read && styles.readCard]}
+            onPress={() => goDetail(item.id)}
+          >
             <Text style={styles.message}>{item.content}</Text>
           </TouchableOpacity>
         )}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>まだ既読の質問はありません</Text>
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>まだ既読の質問はありません</Text>
+          </View>
         }
+        contentContainerStyle={{ paddingBottom: 20 }}
       />
-
-     
     </View>
   );
 }
@@ -61,29 +75,43 @@ const getStyles = (isDark: boolean) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      padding: 16,
+      paddingHorizontal: 16,
+      paddingTop: 16,
       backgroundColor: isDark ? '#121212' : '#fff',
     },
     title: {
-      fontSize: 24,
+      fontSize: 26,
       fontWeight: 'bold',
-      marginBottom: 16,
+      marginBottom: 20,
       color: isDark ? '#FFA500' : '#FF8C00',
-    },
-    emptyText: {
-      textAlign: 'center',
-      marginTop: 50,
-      fontSize: 16,
-      color: isDark ? '#888' : '#aaa',
     },
     card: {
       backgroundColor: isDark ? '#333' : '#FFE4B5',
-      padding: 12,
+      padding: 16,
       marginBottom: 12,
-      borderRadius: 10,
+      borderRadius: 12,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    readCard: {
+      opacity: 0.8, // 既読を少し薄く
     },
     message: {
       fontSize: 16,
       color: isDark ? '#fff' : '#333',
+      lineHeight: 22,
+    },
+    emptyContainer: {
+      flex: 1,
+      alignItems: 'center',
+      marginTop: 50,
+    },
+    emptyText: {
+      fontSize: 16,
+      color: isDark ? '#888' : '#aaa',
+      textAlign: 'center',
     },
   });

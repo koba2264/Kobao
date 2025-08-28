@@ -4,6 +4,7 @@ import DropDownPicker from "react-native-dropdown-picker";
 import { useRouter } from "expo-router";
 import { nanoid } from "nanoid";
 import { useFocusEffect } from "@react-navigation/native";
+import { getStatus } from '@/src/auth';
 
  
 type Question = {
@@ -87,8 +88,7 @@ export default function QuestionListScreen() {
       return;
     }
     const selectedQuestion = questions.find(q => q.id === selectedQuestionId);
-    // console.log(tagsValue)
-    console.log(tagsItems)
+    const status = await getStatus();
     try {
       const response = await fetch('http://127.0.0.1:5000/teacher/answer', {
         method: 'POST',
@@ -98,7 +98,8 @@ export default function QuestionListScreen() {
         body: JSON.stringify({ 
           question_id: selectedQuestionId,
           answerText: answerText,
-          tagsItems: tagsItems
+          tagsItems: tagsItems,
+          teacher_id:status.user_id
         }),
       });
       setQuestions(prev => prev.filter(q => q.id !== selectedQuestionId));

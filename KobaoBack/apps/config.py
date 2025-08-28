@@ -17,6 +17,8 @@ class BaseConfig:
 class LocalConfig(BaseConfig):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ECHO = True
+    # qDrantのurl
+    QDRANT_URL = "http://localhost:6333"
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
     
     # jwt認証用
@@ -28,7 +30,7 @@ class LocalConfig(BaseConfig):
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
     # トークンの取得場所
     JWT_TOKEN_LOCATION = ["headers"]
-
+    
 class TestingConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI ='postgresql+psycopg2://postgres:Takuhaya1103@localhost:5432/kobao'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
