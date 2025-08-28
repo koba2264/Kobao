@@ -7,30 +7,31 @@ import { saveTokens } from '@/src/token';
 export default function IndexScreen() {
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const router = useRouter();
 
   const loginFlask = async () => {
     try {
-        const res = await api.post("/auth/login", { id, password });
-
-        console.log(res.data);
-        if (res.data.result === 'success') {
-            // トークンを保存
-            await saveTokens(res.data);
-            if (res.data.role === 'student') {
-              router.replace('/(student)');
-            } else if (res.data.role === 'teacher') {
-              router.replace('/(teacher)');
-            } else if (res.data.role === 'change') {
-              router.replace('/(auth)/pass');
-            }
-        } else if (res.data.result === 'false') {
-            setId('');
-            setPassword('');
-            alert('ID またはパスワードが間違っています。');
-        } 
+      const res = await api.post("/auth/login", { id, password });
+      if (res.data.result === 'success') {
+        // トークンを保存
+        await saveTokens(res.data);
+        if(res.data.change_pass_judge === 'change') {
+          router.replace('/(auth)/pass');
+          return;
+        }
+        if (res.data.role === 'student') {
+          router.replace('/(student)');
+        } else if (res.data.role === 'teacher') {
+          router.replace('/(teacher)');
+        }
+      } else if (res.data.result === 'false') {
+        setId('');
+        setPassword('');
+        setMessage('ID またはパスワードが間違っています。');
+      } 
     } catch { 
       const response = await fetch(`${api.defaults.baseURL}/auth/login`, {
         method: 'POST',
@@ -42,13 +43,16 @@ export default function IndexScreen() {
       console.log(data);
 
       if (data.result === 'success') {
+        if(data.change_pass_judge === 'change'){
+          router.replace('/(auth)/pass');
+          return;
+        }
         if (data.role === 'student') router.replace('/(student)');
         else if (data.role === 'teacher') router.replace('/(teacher)');
-        else if (data.role === 'change') router.replace('/(auth)/pass');
       } else if (data.result === 'false') {
         setId('');
         setPassword('');
-        Alert.alert('ログイン失敗', 'ID またはパスワードが間違っています。');
+        setMessage('ID またはパスワードが間違っています。');
       } 
     }
   };
@@ -60,6 +64,7 @@ export default function IndexScreen() {
       </View>
 
       <View style={styles.form}>
+        {message ? <Text style={styles.error}>{message}</Text> : null} 
         <TextInput
           style={[
             styles.input,
@@ -138,6 +143,10 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  error: {
+    color: 'red', // 赤文字
+    marginTop: 12,
   },
 });
 
