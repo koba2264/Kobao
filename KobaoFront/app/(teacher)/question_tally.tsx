@@ -1,3 +1,4 @@
+import { api } from "@/src/api";
 import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
@@ -8,44 +9,47 @@ export default function QuestionByTagScreen() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [filteredQuestions, setFilteredQuestions] = useState<Question[]>([]);
 
-  const [tab, setTab] = useState<"tally"|"ratio"|"status">("tally");
+  const [tab, setTab] = useState<"tally" | "ratio" | "status">("tally");
 
   // タグ用state
   const [tagOpen, setTagOpen] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tagItems, setTagItems] = useState([{ label: "", value: "" }]);
 
+  // タグ一覧取得
   const select_all_tag = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/teacher/select_tag', { method: 'GET' });
+      const response = await fetch(`${api.defaults.baseURL}/teacher/select_tag`, { method: 'GET' });
       const data = await response.json();
       const formattedTags = data.tag.map((tag: any) => ({
         label: tag.tag_name.trim(),
         value: tag.tag_name.trim(),
       }));
       setTagItems(formattedTags);
-    } catch (error) { console.log("error"); }
+    } catch (error) { console.log("error", error); }
   };
-  useEffect(() => { if(tagOpen) select_all_tag(); }, [tagOpen]);
+  useEffect(() => { if (tagOpen) select_all_tag(); }, [tagOpen]);
 
+  // 質問一覧取得（タグ付き）
   const select_all_question = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:5000/teacher/select_question_tag', { method: 'POST' });
+      const response = await fetch(`${api.defaults.baseURL}/teacher/select_question_tag`, { method: 'GET' });
+      console.log(response);
       const data = await response.json();
       const Qestions_tag = data.ans_tag.map((ans_tag: any) => ({
-        id: ans_tag.que_id,
-        title: ans_tag.question_content,
-        tags: ans_tag.tags,
+        id: ans_tag.answer_id,       // ans_tag の answer_id を質問IDとして利用
+        title: ans_tag.tags.map((t: any) => t.tag).join(", "), // 仮にタイトルにタグを表示
+        tags: ans_tag.tags.map((t: any) => t.tag)
       }));
       setQuestions(Qestions_tag);
       setFilteredQuestions(Qestions_tag);
-    } catch (error) { console.log("error"); }
+    } catch (error) { console.log("error", error); }
   };
   useEffect(() => { select_all_question(); }, []);
 
-  // タグでフィルタリング
+  // 選択タグでフィルタリング
   useEffect(() => {
-    if(selectedTags.length === 0) setFilteredQuestions(questions);
+    if (selectedTags.length === 0) setFilteredQuestions(questions);
     else {
       const filtered = questions.filter(q => q.tags.some(tag => selectedTags.includes(tag)));
       setFilteredQuestions(filtered);
@@ -56,13 +60,13 @@ export default function QuestionByTagScreen() {
     <View style={styles.container}>
       {/* 横並びタブ */}
       <View style={styles.tabContainer}>
-        <TouchableOpacity style={[styles.tabButton, tab==="tally" && styles.activeTab]} onPress={()=>setTab("tally")}>
+        <TouchableOpacity style={[styles.tabButton, tab === "tally" && styles.activeTab]} onPress={() => setTab("tally")}>
           <Text style={styles.tabText}>質問集計</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.tabButton, tab==="ratio" && styles.activeTab]} onPress={()=>setTab("ratio")}>
+        <TouchableOpacity style={[styles.tabButton, tab === "ratio" && styles.activeTab]} onPress={() => setTab("ratio")}>
           <Text style={styles.tabText}>質問比率</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.tabButton, tab==="status" && styles.activeTab]} onPress={()=>setTab("status")}>
+        <TouchableOpacity style={[styles.tabButton, tab === "status" && styles.activeTab]} onPress={() => setTab("status")}>
           <Text style={styles.tabText}>回答状況</Text>
         </TouchableOpacity>
       </View>
@@ -70,7 +74,11 @@ export default function QuestionByTagScreen() {
       {/* タブ内容 */}
       {tab === "tally" && (
         <>
-          <Text style={styles.heading}>タグで質問を絞り込む</Text>
+          <Text style={styles.heading}>
+            タグで質問を絞り込む
+            {selectedTags.length > 0 ? `: ${selectedTags.join(", ")}` : ""}
+          </Text>
+
           <DropDownPicker
             multiple
             open={tagOpen}
@@ -83,6 +91,7 @@ export default function QuestionByTagScreen() {
             style={styles.dropdown}
             dropDownContainerStyle={styles.dropdownContainer}
           />
+
           <FlatList
             style={{ flex: 1 }}
             data={filteredQuestions}
@@ -109,23 +118,22 @@ export default function QuestionByTagScreen() {
           <Text style={styles.heading}>回答状況をグラフなどで表示</Text>
         </View>
       )}
-
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: "#FF8C00" },
-  heading: { fontSize: 18, fontWeight: "bold", marginBottom: 12, color: "#fff" },
-  dropdown: { marginBottom: 16, borderColor: "#fff" },
-  dropdownContainer: { borderColor: "#fff" },
-  card: { padding: 12, backgroundColor: "#fff", borderRadius: 8, marginBottom: 12 },
+  container: { flex: 1, padding: 16, backgroundColor: "#ffffffff" },
+  heading: { fontSize: 18, fontWeight: "bold", marginBottom: 12, color: "#000000ff" },
+  dropdown: { marginBottom: 16, borderColor: "#FF8C00" },
+  dropdownContainer: { borderColor: "#FF8C00" },
+  card: { padding: 12, backgroundColor: "#FF8C00", borderRadius: 8, marginBottom: 12 },
   title: { fontSize: 16, fontWeight: "bold" },
   tags: { marginTop: 4, color: "#555" },
   emptyText: { textAlign: "center", color: "#fff", marginTop: 20 },
   tabContainer: { flexDirection: "row", marginBottom: 12 },
-  tabButton: { flex: 1, padding: 8, backgroundColor:"#FFA500", marginHorizontal:2, borderRadius:4 },
-  activeTab: { backgroundColor:"#FF8C00" },
-  tabText: { textAlign:"center", color:"#fff", fontWeight:"bold" },
-  centered: { flex:1, justifyContent:"center", alignItems:"center" }
+  tabButton: { flex: 1, padding: 8, backgroundColor: "#FFA500", marginHorizontal: 2, borderRadius: 4 },
+  activeTab: { backgroundColor: "#FF8C00" },
+  tabText: { textAlign: "center", color: "#fff", fontWeight: "bold" },
+  centered: { flex: 1, justifyContent: "center", alignItems: "center" }
 });
