@@ -240,10 +240,10 @@ def answer():
       "question_id":question_id
     })
 
-    sql4 = sql_text("UPDATE qa SET ans_id = :ans_id WHERE que_id = :question_id")
+    sql4 = sql_text("UPDATE qa SET que_id = :question_id ans_id = :ans_id")
     db.session.execute(sql4,{
-      "ans_id":ans_id,
-      "question_id":question_id
+      "que_id":question_id,
+      "ans_id":ans_id
     })
     
   db.session.commit()
