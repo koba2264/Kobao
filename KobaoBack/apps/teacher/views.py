@@ -30,6 +30,7 @@ def insert_tag():
     db.session.commit()
     return jsonify({'result': 'いいね！'})
 
+
 # -------------------------
 # 質問関連
 # -------------------------
@@ -40,7 +41,7 @@ def select_question():
     rows = result.mappings().all()
     return {"question": [dict(row) for row in rows]}
 
-@teacher.route('/select_question_tag', methods=["GET"])
+@teacher.route('/select_question_tag', methods=["POST"])
 def select_question_tag():
     try:
         results = (

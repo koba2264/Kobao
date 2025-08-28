@@ -97,6 +97,7 @@ export default function QuestionByTagScreen() {
           />
 
           <FlatList
+            style={{ flex: 1 }}
             data={filteredQuestions}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (

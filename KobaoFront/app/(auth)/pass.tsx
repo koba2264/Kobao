@@ -28,9 +28,25 @@ export default function TeacherChangePassScreen() {
     }
 
     const status = await getStatus();
-
-    try {
-      const response = await fetch('http://127.0.0.1:5000/auth/change_pass', {
+    console.log(status);
+    if (status.role === "student") {
+      try {
+      const response = await fetch('http://127.0.0.1:5000/auth/change_pass_student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          student_id: status.user_id,
+          password: password
+        }),
+      });
+      router.replace('/(auth)/login');
+    } catch (err) {
+      console.error(err);
+      Alert.alert("エラー", "サーバー接続に失敗しました");
+    }
+  }else if (status.role === "teacher") {
+     try {
+      const response = await fetch('http://127.0.0.1:5000/auth/change_pass_teacher', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -43,7 +59,8 @@ export default function TeacherChangePassScreen() {
       console.error(err);
       Alert.alert("エラー", "サーバー接続に失敗しました");
     }
-  };
+  }
+  }; 
 
   return (
     <View style={styles.container}>

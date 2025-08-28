@@ -111,7 +111,7 @@ export default function StudentListScreen() {
       await fetch(`${api.defaults.baseURL}/teacher/change_pass`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ teacher_id: selectedStudent.id }),
+        body: JSON.stringify({ student_id: selectedStudent.id }),
       });
 
       // 成功したら state を更新

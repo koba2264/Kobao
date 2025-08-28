@@ -7,7 +7,6 @@ import { api } from "@/src/api";
 export default function TeacherRegisterScreen() {
   const [teacher_id, setTeacher_id] = useState("");
   const [name, setName] = useState("");
-  const [password, setPassword] = useState("");
   const [message, setMessage] = useState('');
 
   useFocusEffect(
@@ -18,7 +17,7 @@ export default function TeacherRegisterScreen() {
 
 
   const handleRegister = async () => {
-    if (!teacher_id || !name || !password) {
+    if (!teacher_id || !name) {
       Alert.alert("エラー", "全ての項目を入力してください");
       return;
     }
@@ -45,7 +44,6 @@ export default function TeacherRegisterScreen() {
       } else if (data.result === 'success') {
         setTeacher_id("");
         setName("");
-        setPassword("");
       }
     } catch (error) {
       Alert.alert("エラー", "教員登録中に問題が発生しました");

@@ -20,6 +20,7 @@ class Student(db.Model):
     create_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, nullable=False)
     update_at = db.Column(db.DateTime(timezone=True), default=datetime.utcnow, nullable=False)
     change_pass = db.Column(db.Boolean, default=False)
+
     questions = db.relationship('Question', backref='student', cascade='all, delete-orphan')
     tags = db.relationship('Tag', secondary='stutag', backref='students')
 
