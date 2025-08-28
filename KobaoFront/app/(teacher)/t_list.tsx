@@ -113,7 +113,7 @@ export default function TeacherListScreen() {
   const change_pass = async () => {
     if (selectedTeacher) {
       try {
-        const response = await fetch('http://127.0.0.1:5000/teacher/change_pass', {
+        const response = await fetch('http://127.0.0.1:5000/teacher/change_pass_request_teacher', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

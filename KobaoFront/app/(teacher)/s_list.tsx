@@ -107,10 +107,10 @@ export default function StudentListScreen() {
     if (!selectedStudent) return;
 
     try {
-      await fetch("http://127.0.0.1:5000/teacher/change_pass", {
+      await fetch("http://127.0.0.1:5000/teacher/change_pass_request_student", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ teacher_id: selectedStudent.id }),
+        body: JSON.stringify({ student_id: selectedStudent.id }),
       });
 
       // 成功したら state を更新
