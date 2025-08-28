@@ -3,6 +3,7 @@ import { View, Text, TextInput, Button, Alert, StyleSheet } from "react-native";
 import { getStatus } from "@/src/auth";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
+import { api } from "@/src/api";
 
 export default function TeacherChangePassScreen() {
   const [password, setPassword] = useState("");
@@ -31,7 +32,7 @@ export default function TeacherChangePassScreen() {
     console.log(status);
     if (status.role === "student") {
       try {
-      const response = await fetch('http://127.0.0.1:5000/auth/change_pass_student', {
+      const response = await fetch(`${api.defaults.baseURL}auth/change_pass_student`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -46,7 +47,7 @@ export default function TeacherChangePassScreen() {
     }
   }else if (status.role === "teacher") {
      try {
-      const response = await fetch('http://127.0.0.1:5000/auth/change_pass_teacher', {
+      const response = await fetch(`${api.defaults.baseURL}/auth/change_pass_teacher`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
