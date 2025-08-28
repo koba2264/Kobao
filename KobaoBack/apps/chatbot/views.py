@@ -23,7 +23,9 @@ def receive():
     data = request.get_json()
 
     text = data.get('message')
-    query_vec = model.encode(text)
+
+    after_text = preprocess(text)
+    query_vec = model.encode(after_text)
 
     res = client.search(collection_name="Questions", query_vector=query_vec, limit=3)
     result = []
@@ -96,7 +98,8 @@ def add():
     ans_id = data.get('ans_id')
 
     q = Question.query.filter_by(id=que_id).first()
-    vec = model.encode(q.content)
+    after_text = preprocess(q.content)
+    vec = model.encode(after_text)
     points = [
         PointStruct(
             id=que_id,
