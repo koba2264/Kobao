@@ -46,21 +46,16 @@ def login():
             # 認証失敗
             return jsonify({'result': 'false'}), 401
         
+    
+    if not user.check_password(password):
+        return jsonify({'result': 'false'}), 401
+    
     change_pass = bool(user.change_pass)
     now = datetime.now(timezone.utc)
     last_update = user.update_at
     if change_pass or now - last_update > timedelta(days=30):
         change_pass_jugde = "change"
-    
-    if not user.check_password(password):
-        return jsonify({'result': 'false'}), 401
-#   パスワードリセット用
-    change_pass = bool(user.change_pass)
-    now = datetime.now(timezone.utc)
-    last_update = user.update_at
-    if change_pass or now - last_update > timedelta(days=30):
-        role = "change"
-    
+        
     # ユーザーが存在する場合はトークンを作成
     claims = {"role": role}
     # アクセストークン作成

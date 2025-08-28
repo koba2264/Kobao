@@ -54,38 +54,38 @@ def preprocess(text: str) -> str:
 
 @chatbot.route('/setup')
 def setup():
-    # student = Student(id='test3', name='学生')
-    # student.set_password('pass')
-    # teacher = Teacher(id='test4', name='教員')
-    # teacher.set_password('pass')
-    # db.session.add(student)
-    # db.session.add(teacher)
-    # db.session.commit()
-    client.recreate_collection(
-        collection_name="Questions",
-        vectors_config=VectorParams(size=1024, distance=Distance.COSINE),
-        on_disk_payload=True,
-    )
+    student = Student(id='test3', name='学生')
+    student.set_password('pass')
+    teacher = Teacher(id='test4', name='教員')
+    teacher.set_password('pass')
+    db.session.add(student)
+    db.session.add(teacher)
+    db.session.commit()
+    # client.recreate_collection(
+    #     collection_name="Questions",
+    #     vectors_config=VectorParams(size=1024, distance=Distance.COSINE),
+    #     on_disk_payload=True,
+    # )
 
-    rows = (
-        db.session.query(Question, QA)
-        .join(QA, QA.que_id == Question.id)
-        .all()
-    )
-    for q, qa in rows:
-        vec = model.encode(q.content)
-        points = [
-            PointStruct(
-                id=str(qa.que_id),
-                vector=vec,
-                payload={
-                    "que_id": str(qa.que_id),
-                    "ans_id": str(qa.ans_id),
-                },
-            ),
-        ]
-        client.upsert(collection_name="Questions", points=points)
-    print('success')
+    # rows = (
+    #     db.session.query(Question, QA)
+    #     .join(QA, QA.que_id == Question.id)
+    #     .all()
+    # )
+    # for q, qa in rows:
+    #     vec = model.encode(q.content)
+    #     points = [
+    #         PointStruct(
+    #             id=str(qa.que_id),
+    #             vector=vec,
+    #             payload={
+    #                 "que_id": str(qa.que_id),
+    #                 "ans_id": str(qa.ans_id),
+    #             },
+    #         ),
+    #     ]
+    #     client.upsert(collection_name="Questions", points=points)
+    # print('success')
     return '', 200
 
 # chatbotでの推測の候補を追加
