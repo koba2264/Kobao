@@ -30,6 +30,7 @@ def insert_tag():
     db.session.commit()
     return jsonify({'result': 'いいね！'})
 
+
 # -------------------------
 # 質問関連
 # -------------------------
@@ -40,7 +41,7 @@ def select_question():
     rows = result.mappings().all()
     return {"question": [dict(row) for row in rows]}
 
-@teacher.route('/select_question_tag', methods=["GET"])
+@teacher.route('/select_question_tag', methods=["POST"])
 def select_question_tag():
     results = (
         db.session.query(Answer.id.label("answer_id"), Tag.id.label("tag_id"), Tag.tag_name)
@@ -48,14 +49,32 @@ def select_question_tag():
         .join(Tag, AnsTag.TAG_ID == Tag.ID)
         .all()
     )
+    .join(QA, QA.que_id == Question.id)
+    .join(Answer, QA.ans_id == Answer.id)
+    .join(AnsTag, Answer.id == AnsTag.ans_id)
+    .join(Tag, AnsTag.tag_id == Tag.id)
+  )
 
-    answer_dict = {}
-    for ans_id, tag_id, tag_name in results:
-        if ans_id not in answer_dict:
-            answer_dict[ans_id] = []
-        answer_dict[ans_id].append({"id": tag_id, "tag": tag_name})
+  answer_dict = {}
+  for que_id,question_content, answer_content, tag_name in results:
+    if que_id not in answer_dict:
+      answer_dict[que_id] = {
+        "question_content": question_content,"answer_content":answer_content, 
+        "tags": []
+      }
+    answer_dict[que_id]["tags"].append(tag_name.strip())
+  print(answer_dict)
 
-    return {"ans_tag": [{"answer_id": k, "tags": v} for k, v in answer_dict.items()]}
+    # 辞書をリストに変換して返す
+  return {
+    "ans_tag": [
+      {"que_id": k, 
+       "question_content": v["question_content"],
+       "answer_content": v["answer_content"],
+       "tags": v["tags"]}
+      for k, v in answer_dict.items()
+    ]
+  }
 
 # -------------------------
 # 教師関連
