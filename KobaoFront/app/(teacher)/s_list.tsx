@@ -10,6 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
+import { api } from "@/src/api";
 
 type Student = {
   id: string;
@@ -27,7 +28,7 @@ export default function StudentListScreen() {
   const select_all_student = async () => {
     try {
       const response = await fetch(
-        "http://127.0.0.1:5000/teacher/select_all_student",
+        `${api.defaults.baseURL}/teacher/select_all_student`,
         { method: "GET", headers: { "Content-Type": "application/json" } }
       );
       const data = await response.json();
@@ -61,7 +62,7 @@ export default function StudentListScreen() {
         text: "削除",
         onPress: async () => {
           try {
-            await fetch("http://127.0.0.1:5000/teacher/delete_student", {
+            await fetch(`${api.defaults.baseURL}/teacher/delete_student`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ student_id: student.id }),
@@ -82,7 +83,7 @@ export default function StudentListScreen() {
     if (!selectedStudent) return;
 
     try {
-      await fetch("http://127.0.0.1:5000/teacher/edit_student", {
+      await fetch(`${api.defaults.baseURL}/teacher/edit_student`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -107,7 +108,7 @@ export default function StudentListScreen() {
     if (!selectedStudent) return;
 
     try {
-      await fetch("http://127.0.0.1:5000/teacher/change_pass", {
+      await fetch(`${api.defaults.baseURL}/teacher/change_pass`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ teacher_id: selectedStudent.id }),

@@ -8,7 +8,7 @@ from apps.app import db, bcrypt
 class Tag(db.Model):
     __tablename__ = 'tag'
     id = db.Column(db.Integer, primary_key=True)
-    tab_name = db.Column(db.String(10), nullable=False)
+    tag_name = db.Column(db.String(10), nullable=False)
 
 # 生徒情報
 class Student(db.Model):
