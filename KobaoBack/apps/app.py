@@ -4,12 +4,6 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
-
-from flask_bcrypt import Bcrypt
-from qdrant_client import QdrantClient
-from sentence_transformers import SentenceTransformer
-
-from flask_bcrypt import Bcrypt
 from qdrant_client import QdrantClient
 from sentence_transformers import SentenceTransformer
 
@@ -23,7 +17,9 @@ def create_app(config_key):
     app.config.from_object(config[config_key])
     # 他サイトからのリクエストを受け取れるようにしている
     # あとで受け取れるサイトを絞る
-    CORS(app, supports_credentials=True, origins=["http://localhost:8081"])
+    CORS(app, supports_credentials=True, origins=[ "http://localhost:8081",
+        "https://3_cof8m-yuichiroito-8081.exp.direct","https://6d5lk2c-anonymous-8081.exp.direct"
+ ])
     # jwt認証用
     jwt.init_app(app)
     db.init_app(app)
@@ -41,7 +37,6 @@ def create_app(config_key):
     app.register_blueprint(teacher_views.teacher, url_prefix="/teacher")
 
     app.register_blueprint(auth_views.auth, url_prefix="/auth")
-
 
     app.register_blueprint(student_views.student, url_prefix="/student")
 
