@@ -45,8 +45,8 @@ def create_app(config_key):
 
     app.register_blueprint(student_views.student, url_prefix="/student")
 
-    with app.app_context():
-        db.create_all()
+    # with app.app_context():
+    #     db.create_all()
 
     
     return app
