@@ -154,7 +154,7 @@ export default function ResultScreen() {
                   </Pressable>
                 ))
               ) : (
-                <Text style={styles.botMessage}>回答がありません</Text>
+                <Text style={styles.botMessage}>類似したものがまだありません。先生に質問してみよう！</Text>
               )}
             </View>
           </View>
