@@ -121,9 +121,7 @@ const getStyles = (isDark: boolean) =>
     input: {
       fontSize: 16,
       color: isDark ? '#fff' : '#333',
-      minHeight: 80,
-      maxHeight: 200, // 最大高さを指定
-      textAlignVertical: 'top',
+      height: '100%'
     },
     button: {
       backgroundColor: '#FF8C00',

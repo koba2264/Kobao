@@ -107,7 +107,7 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingBottom: 20,
+    // paddingBottom: 20,
   },
   header: {
     paddingTop: 40,
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingVertical: 1,
     borderTopWidth: 1,
-    height: 100,
+    height: 60,
   },
   footerItem: {
     flex: 1,

@@ -1,7 +1,7 @@
 import { Stack, useRouter } from 'expo-router';
 import { useEffect } from 'react';
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, useColorScheme } from 'react-native';
 import { getTokens, saveTokens, clearTokens } from '@/src/token';
 import { api } from '@/src/api';
 import { logout, getStatus } from '@/src/auth';
@@ -41,6 +41,9 @@ export async function bootstrapSession() {
 
 export default function RootLayout() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  
+  const isDark = colorScheme === "dark" ? true : false;
 
   useEffect(() => {
     // Stack
@@ -53,7 +56,7 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#000' }} edges={['top','bottom']}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: isDark ? "#000000" : "#fbfbfb" }} edges={['top','bottom']}>
         <Stack screenOptions= {{ headerShown: false }}>
           <Stack.Screen name="(test)" />
           <Stack.Screen name="(student)" />
