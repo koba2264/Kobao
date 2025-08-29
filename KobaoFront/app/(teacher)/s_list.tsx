@@ -108,7 +108,7 @@ export default function StudentListScreen() {
     if (!selectedStudent) return;
 
     try {
-      await fetch(`${api.defaults.baseURL}/teacher/change_pass`, {
+      await fetch(`${api.defaults.baseURL}/teacher/change_pass_student`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ student_id: selectedStudent.id }),

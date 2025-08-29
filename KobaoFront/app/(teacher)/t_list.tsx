@@ -114,7 +114,7 @@ export default function TeacherListScreen() {
   const change_pass = async () => {
     if (selectedTeacher) {
       try {
-        const response = await fetch(`${api.defaults.baseURL}/teacher/change_pass`, {
+        const response = await fetch(`${api.defaults.baseURL}/teacher/change_pass_teacher`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
