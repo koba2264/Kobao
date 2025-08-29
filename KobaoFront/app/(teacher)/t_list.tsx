@@ -27,7 +27,7 @@ export default function TeacherListScreen() {
   const select_all_teacher = async () =>{
       try {
         const response = await fetch(`${api.defaults.baseURL}/teacher/select_all_teacher`, {
-        method: 'GET',
+        method: 'POST',
         headers: {'Content-Type': 'application/json'}
         })
         const data = await response.json();

@@ -14,11 +14,13 @@ teacher = Blueprint(
 # -------------------------
 # タグ関連
 # -------------------------
-@teacher.route('/select_tag', methods=["GET"])
+@teacher.route('/select_tag', methods=["POST"])
 def select_tag():
     sql = sql_text("SELECT * FROM Tag")
     result = db.session.execute(sql)
     rows = result.mappings().all()
+    for row in rows:
+        print(row)
     return {"tag": [dict(row) for row in rows]}
 
 @teacher.route('/insert_tag', methods=["POST"])
@@ -34,7 +36,7 @@ def insert_tag():
 # -------------------------
 # 質問関連
 # -------------------------
-@teacher.route('/select_question', methods=["GET"])
+@teacher.route('/select_question', methods=["POST"])
 def select_question():
     sql = sql_text("SELECT * FROM questions WHERE ansed_flag = false")
     result = db.session.execute(sql)
@@ -90,22 +92,21 @@ def insert_teacher():
     data = request.get_json()
     teacher_id = data.get('teacher_id')
     teacher_name = data.get('name')
-    password = data.get('password')
 
-    if not teacher_id or not password:
-        return jsonify({'result': 'false', 'message': 'IDとパスワードは必須です'}), 400
+    if not teacher_id:
+        return jsonify({'result': 'false', 'message': 'IDは必須です'}), 400
 
     if Student.query.get(teacher_id) or Teacher.query.get(teacher_id):
         return jsonify({'result': 'false', 'message': '既に存在するIDです'}), 400
 
     new_teacher = Teacher(id=teacher_id, name=teacher_name)
-    new_teacher.set_password(password)
+    new_teacher.set_password(teacher_id)  # 初期パスワードはIDと同じ
     db.session.add(new_teacher)
     db.session.commit()
 
     return jsonify({'result': 'success', 'message': f'{teacher_name}を登録しました'})
 
-@teacher.route('/select_all_teacher', methods=["GET"])
+@teacher.route('/select_all_teacher', methods=["POST"])
 def select_all_teacher():
     sql = sql_text("SELECT * FROM teacher")
     result = db.session.execute(sql)
@@ -143,7 +144,7 @@ def change_pass():
 # -------------------------
 # 学生関連
 # -------------------------
-@teacher.route('/select_all_student', methods=["GET"])
+@teacher.route('/select_all_student', methods=["POST"])
 def select_all_student():
     sql = sql_text("SELECT * FROM student")
     result = db.session.execute(sql)

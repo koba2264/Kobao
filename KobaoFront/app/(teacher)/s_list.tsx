@@ -29,7 +29,7 @@ export default function StudentListScreen() {
     try {
       const response = await fetch(
         `${api.defaults.baseURL}/teacher/select_all_student`,
-        { method: "GET", headers: { "Content-Type": "application/json" } }
+        { method: "POST", headers: { "Content-Type": "application/json" } }
       );
       const data = await response.json();
       const formattedStudents = data.student.map((student: any) => ({
