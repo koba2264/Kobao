@@ -137,7 +137,7 @@ def edit_teacher():
     return jsonify({'result': 'いいね！'})
 
 @teacher.route('/change_pass_teacher', methods=["POST"])
-def change_pass():
+def change_pass_teacher():
     data = request.get_json()
     teacher_id = data.get('teacher_id')
     sql = sql_text("UPDATE teacher SET change_pass = true WHERE ID = :teacher_id")
@@ -146,7 +146,7 @@ def change_pass():
     return jsonify({'result': '成功'})
 
 @teacher.route('/change_pass_student', methods=["POST"])
-def change_pass():
+def change_pass_student():
     data = request.get_json()
     student_id = data.get('student_id')
     sql = sql_text("UPDATE student SET change_pass = true WHERE ID = :student_id")

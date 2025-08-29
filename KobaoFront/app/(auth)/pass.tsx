@@ -22,29 +22,28 @@ export default function TeacherChangePassScreen() {
       setMessage("パスワードを入力してください");
       return;
     }
-
+    
     if (password !== confirmPassword) {
       setMessage("パスワードが一致しません");
       return;
     }
-
     const status = await getStatus();
-    console.log(status);
+    
     if (status.role === "student") {
       try {
-      const response = await fetch(`${api.defaults.baseURL}auth/change_pass_student`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          student_id: status.user_id,
-          password: password
-        }),
-      });
-      router.replace('/(auth)/login');
-    } catch (err) {
-      console.error(err);
-      Alert.alert("エラー", "サーバー接続に失敗しました");
-    }
+        const response = await fetch(`${api.defaults.baseURL}/auth/change_pass_student`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            student_id: status.user_id,
+            password: password
+          })
+        });
+        router.replace('/(auth)/login');
+      } catch (err) {
+        console.error(err);
+        Alert.alert("エラー", "サーバー接続に失敗しました");
+      }
   }else if (status.role === "teacher") {
      try {
       const response = await fetch(`${api.defaults.baseURL}/auth/change_pass_teacher`, {
