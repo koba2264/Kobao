@@ -139,21 +139,7 @@ export default function QuestionByTagScreen() {
 
       {tab === "ratio" && (
         <View style={styles.centered}>
-          <PieChart
-        data={data}
-        width={Dimensions.get("window").width}
-        height={220}
-        chartConfig={{
-          backgroundColor: "#1cc910",
-          backgroundGradientFrom: "#eff3ff",
-          backgroundGradientTo: "#efefef",
-          color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`
-        }}
-        accessor="population"
-        backgroundColor="transparent"
-        paddingLeft="15"
-        absolute
-      />
+          <Text style={styles.heading}>質問比率をグラフなどで表示</Text>
         </View>
       )}
 
