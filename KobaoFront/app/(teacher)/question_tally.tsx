@@ -69,7 +69,7 @@ export default function QuestionByTagScreen() {
 
     const goDetail = (id: string) => {
     router.push({
-      pathname: '/(teacher)/questionDetaile/[id]',
+      pathname: '/(teacher)/questionDetaile/[id]' as any,
       params: { id },
     });
   };

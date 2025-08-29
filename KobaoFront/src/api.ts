@@ -3,8 +3,8 @@ import { getTokens, saveTokens, clearTokens } from "./token";
 
 // flaskのアクセス先
 export const api = axios.create({
-  // baseURL: "https://kobaya.fd-club.com",
-  baseURL: "http://127.0.0.1:5000",
+  baseURL: "https://kobaya.fd-club.com",
+  // baseURL: "http://127.0.0.1:5000",
 });
 
 // --- 同時 401 対策のキュー ---

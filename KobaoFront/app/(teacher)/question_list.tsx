@@ -25,7 +25,7 @@ export default function QuestionListScreen() {
   const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null);
 
   const [tagsOpen, setTagsOpen] = useState(false);
-  const [tagsValue, setTagsValue] = useState<string[]>([]);
+  const [tagsValue, setTagsValue] = useState<TagItem[]>([]);
   const [tagsItems, setTagsItems] = useState<TagItem[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
