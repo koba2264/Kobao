@@ -28,7 +28,7 @@ export default function QuestionByTagScreen() {
   // タグ一覧取得
   const select_all_tag = async () => {
     try {
-      const response = await fetch(`${api.defaults.baseURL}/teacher/select_tag`, { method: 'GET' });
+      const response = await fetch(`${api.defaults.baseURL}/teacher/select_tag`, { method: 'POST' });
       const data = await response.json();
       const formattedTags = data.tag.map((tag: any) => ({
         label: tag.tag_name.trim(),
