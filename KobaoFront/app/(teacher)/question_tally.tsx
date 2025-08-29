@@ -1,6 +1,6 @@
 import { api } from "@/src/api";
-import { router } from "expo-router";
-import React, { useState, useEffect } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, FlatList, StyleSheet, TouchableOpacity,Dimensions } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import { PieChart } from "react-native-chart-kit";
@@ -56,7 +56,12 @@ export default function QuestionByTagScreen() {
       setFilteredQuestions(Qestions_tag);
     } catch (error) { console.log("error", error); }
   };
-  useEffect(() => { select_all_question(); }, []);
+
+  useFocusEffect(
+      useCallback(() => {
+        select_all_question();
+      }, [])
+    );
 
   // 選択タグでフィルタリング
   useEffect(() => {
@@ -69,7 +74,7 @@ export default function QuestionByTagScreen() {
 
     const goDetail = (id: string) => {
     router.push({
-      pathname: '/(teacher)/questionDetaile/[id]',
+      pathname: '/(teacher)/questionDetaile/[id]' as any,
       params: { id },
     });
   };
