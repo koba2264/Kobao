@@ -46,7 +46,7 @@ export default function Layout() {
       <Drawer.Screen
         name="index"
         options={{
-          title: "ダッシュボード",
+          title: "KOBAO",
           drawerLabel: "ダッシュボード",
           drawerIcon: ({ color, size }) => <Ionicons name="home-outline" color={color} size={size} />,
         }}

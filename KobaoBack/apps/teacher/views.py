@@ -14,7 +14,7 @@ teacher = Blueprint(
 # -------------------------
 # タグ関連
 # -------------------------
-@teacher.route('/select_tag', methods=["GET"])
+@teacher.route('/select_tag', methods=["POST"])
 def select_tag():
     sql = sql_text("SELECT * FROM Tag")
     result = db.session.execute(sql)
@@ -34,7 +34,7 @@ def insert_tag():
 # -------------------------
 # 質問関連
 # -------------------------
-@teacher.route('/select_question', methods=["GET"])
+@teacher.route('/select_question', methods=["POST"])
 def select_question():
     sql = sql_text("SELECT * FROM questions WHERE ansed_flag = false")
     result = db.session.execute(sql)
@@ -90,14 +90,18 @@ def insert_teacher():
     data = request.get_json()
     teacher_id = data.get('teacher_id')
     teacher_name = data.get('name')
-    password = data.get('password')
+    password = data.get('teacher_id')
 
-    if not teacher_id or not password:
-        return jsonify({'result': 'false', 'message': 'IDとパスワードは必須です'}), 400
+    if not teacher_id:
+        return jsonify({'result': 'false', 'message': 'IDは必須です'}), 400
 
     if Student.query.get(teacher_id) or Teacher.query.get(teacher_id):
         return jsonify({'result': 'false', 'message': '既に存在するIDです'}), 400
-
+    
+    if len(teacher_id)> 7:
+        return jsonify({'result': 'false', 'message': 'idは7文字以下で入力してください'}), 400
+         
+    
     new_teacher = Teacher(id=teacher_id, name=teacher_name)
     new_teacher.set_password(password)
     db.session.add(new_teacher)
