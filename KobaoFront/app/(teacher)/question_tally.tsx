@@ -1,9 +1,10 @@
 import { api } from "@/src/api";
+import { router } from "expo-router";
 import React, { useState, useEffect } from "react";
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 
-type Question = { id: number; title: string; tags: string[] };
+type Question = { id: string; que_id:string; title: string; tags: string[] };
 
 export default function QuestionByTagScreen() {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -41,6 +42,7 @@ export default function QuestionByTagScreen() {
       const data = await response.json();
       const Qestions_tag = data.ans_tag.map((ans_tag: any) => ({
         id: ans_tag.answer_id,
+        que_id: ans_tag.question_id,
         title: ans_tag.question_content,
         tags: ans_tag.tags.map((t: any) => t.tag)
       }));
@@ -58,6 +60,15 @@ export default function QuestionByTagScreen() {
       setFilteredQuestions(filtered);
     }
   }, [selectedTags, questions]);
+
+    const goDetail = (id: string) => {
+    router.push({
+      pathname: '/(teacher)/questionDetaile/[id]',
+      params: { id },
+    });
+  };
+
+
 
   return (
     <View style={styles.container}>
@@ -102,8 +113,12 @@ export default function QuestionByTagScreen() {
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <View style={styles.card}>
+                <TouchableOpacity
+                            onPress={() => goDetail(item.que_id)}
+                          >
                 <Text style={styles.title}>Q. {item.title}</Text>
-                <Text style={styles.tags}>タグ: {item.tags.join(", ")}</Text>
+                <Text style={styles.tags}>タグ:{item.tags.join(",")}</Text>
+                          </TouchableOpacity>
               </View>
             )}
             ListEmptyComponent={<Text style={styles.emptyText}>該当する質問はありません</Text>}
