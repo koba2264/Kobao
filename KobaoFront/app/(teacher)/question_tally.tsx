@@ -1,14 +1,20 @@
 import { api } from "@/src/api";
 import { router } from "expo-router";
 import React, { useState, useEffect } from "react";
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, FlatList, StyleSheet, TouchableOpacity,Dimensions } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
+import { PieChart } from "react-native-chart-kit";
 
 type Question = { id: string; que_id:string; title: string; tags: string[] };
 
 export default function QuestionByTagScreen() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [filteredQuestions, setFilteredQuestions] = useState<Question[]>([]);
+  const data = [
+    { name: "数学", tag_count: 40, color: "rgba(131, 167, 234, 1)", legendFontColor: "#7F7F7F", legendFontSize: 15 },
+    { name: "英語", population: 30, color: "#F00", legendFontColor: "#7F7F7F", legendFontSize: 15 },
+    { name: "国語", population: 30, color: "orange", legendFontColor: "#7F7F7F", legendFontSize: 15 }
+  ];
 
   const [tab, setTab] = useState<"tally" | "ratio" | "status">("tally");
 
@@ -44,7 +50,7 @@ export default function QuestionByTagScreen() {
         id: ans_tag.answer_id,
         que_id: ans_tag.question_id,
         title: ans_tag.question_content,
-        tags: ans_tag.tags.map((t: any) => t.tag)
+        tags: ans_tag.tags.map((t: any) => t.tag.trim())
       }));
       setQuestions(Qestions_tag);
       setFilteredQuestions(Qestions_tag);
@@ -128,7 +134,21 @@ export default function QuestionByTagScreen() {
 
       {tab === "ratio" && (
         <View style={styles.centered}>
-          <Text style={styles.heading}>質問比率をグラフなどで表示</Text>
+          <PieChart
+        data={data}
+        width={Dimensions.get("window").width}
+        height={220}
+        chartConfig={{
+          backgroundColor: "#1cc910",
+          backgroundGradientFrom: "#eff3ff",
+          backgroundGradientTo: "#efefef",
+          color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`
+        }}
+        accessor="population"
+        backgroundColor="transparent"
+        paddingLeft="15"
+        absolute
+      />
         </View>
       )}
 

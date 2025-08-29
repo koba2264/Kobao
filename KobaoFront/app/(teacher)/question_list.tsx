@@ -14,7 +14,7 @@ type Question = {
 };
 
 type TagItem = {
-  id: string;
+  id: number;
   label: string;
   value: string;
 }
@@ -27,10 +27,7 @@ export default function QuestionListScreen() {
   const [tagsOpen, setTagsOpen] = useState(false);
   const [tagsValue, setTagsValue] = useState<string[]>([]);
   const [tagsItems, setTagsItems] = useState<TagItem[]>([]);
-
-  const [tagOpen, setTagOpen] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [tagItems, setTagItems] = useState([{ label: "", value: "" }]);
 
 
   const select_all_tag = async () => {
@@ -104,11 +101,12 @@ export default function QuestionListScreen() {
         body: JSON.stringify({
           question_id: selectedQuestionId,
           answerText: answerText,
-          tagsItems: tagsItems,
+          tagsItems: tagsValue,
           teacher_id: status.user_id
         }),
       });
       setQuestions(prev => prev.filter(q => q.id !== selectedQuestionId));
+      console.log(tagsValue)
     } catch (error) {
       Alert.alert("エラー", "教師編集中にエラー");
     }
@@ -189,7 +187,7 @@ export default function QuestionListScreen() {
               {/* タグ選択 */}
               <Text style={styles.label}>
                 タグ（複数選択可能）
-                {selectedTags.length > 0 ? `: ${selectedTags.join(", ")}` : ""}
+                {/* {selectedTags.length > 0 ? `: ${selectedTags.join(", ")}` : ""} */}
               </Text>
 
               <View style={{ height: 250 }}>
@@ -198,15 +196,23 @@ export default function QuestionListScreen() {
                   min={0}
                   max={5}
                   open={tagsOpen}
-                  value={tagsValue}
+                  value={tagsValue.map(t => t.value)}
                   items={tagsItems}
                   setOpen={setTagsOpen}
                   setValue={(callback) => {
                     setTagsValue(prev => {
-                      const newValue = typeof callback === "function" ? callback(prev) : callback;
-                      const unique = Array.from(new Set(newValue)) as string[];
-                      setSelectedTags(unique);
-                      return unique;
+                      // callback が関数の場合は prevValues を渡して呼び出す
+                      let selectedValues: string[];
+                      if (typeof callback === "function") {
+                        const result = callback(prev.map(t => t.value));
+                        selectedValues = Array.isArray(result) ? result : [result];
+                      } else {
+                        selectedValues = Array.isArray(callback) ? callback : [callback];
+                      }
+
+                      // 選択された value に基づき TagItem 配列を作成
+                      const newTags = tagsItems.filter(item => selectedValues.includes(item.value));
+                      return newTags;
                     });
                   }}
                   setItems={setTagsItems}
@@ -219,17 +225,14 @@ export default function QuestionListScreen() {
                 />
 
                 {tagsValue.length > 0 && (
-                  <View style={{ marginVertical: 8 }}>
-                    <TouchableOpacity
-                      onPress={() => {
-                        setTagsValue([]);
-                        setSelectedTags([]);
-                      }}
-                      style={styles.clearButton}
-                    >
+                   <>
+                    <Text style={styles.selectedTags}>
+                      選択中のタグ: {tagsValue.map(tag => tag.label).join(", ")}
+                    </Text>
+                    <TouchableOpacity onPress={() => setTagsValue([])} style={styles.clearButton}>
                       <Text style={styles.clearButtonText}>× タグをすべてクリア</Text>
                     </TouchableOpacity>
-                  </View>
+                  </>
                 )}
 
 

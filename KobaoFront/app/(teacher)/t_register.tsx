@@ -20,7 +20,6 @@ export default function TeacherRegisterScreen() {
       Alert.alert("エラー", "全ての項目を入力してください");
       return;
     }
-    console.log("教員登録:", { teacher_id, name});
     Alert.alert("登録完了", `教員 ${name} を登録しました`);
     try {
       const response = await fetch(`${api.defaults.baseURL}/teacher/insert_teacher`, {
@@ -30,7 +29,7 @@ export default function TeacherRegisterScreen() {
         },
         body: JSON.stringify({
           teacher_id: teacher_id,
-          name: name,
+          name: name
         }),
       });
 
