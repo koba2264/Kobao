@@ -97,6 +97,15 @@ export default function ResultScreen() {
 
       if (!response.ok) throw new Error('送信失敗');
 
+      await fetch(`${api.defaults.baseURL}/chatbot/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        que_id: id,
+        ans_id: modalQA.ans_id,
+      }),
+    });
+
       setModalVisible(false);
       Alert.alert('送信成功', '解決済みとして送信しました');
     } catch (error) {
