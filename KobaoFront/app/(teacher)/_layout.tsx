@@ -46,7 +46,7 @@ export default function Layout() {
       <Drawer.Screen
         name="index"
         options={{
-          title: "ダッシュボード",
+          title: "KOBAO",
           drawerLabel: "ダッシュボード",
           drawerIcon: ({ color, size }) => <Ionicons name="home-outline" color={color} size={size} />,
         }}
@@ -95,6 +95,15 @@ export default function Layout() {
           drawerIcon: ({ color, size }) => <Ionicons name="pricetag-outline" color={color} size={size} />,
         }}
       />
+        <Drawer.Screen
+          name="questionDetaile/[id]"
+          options={{
+            title: "質問詳細", // 画面上部に表示するタイトル
+            drawerItemStyle: { display: 'none' }, // Drawer（ハンバーガーメニュー）には表示しない
+          }}
+        />
+
+
 
       {/* 管理者スクリーン。存在は常に描画、非表示は display で制御 */}
       <Drawer.Screen

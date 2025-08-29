@@ -36,17 +36,15 @@ export default function IndexScreen() {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
           style={styles.container}
-          contentContainerStyle={styles.container}
+          contentContainerStyle={{ paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
-          contentInset={{ bottom: 40 }}
         >
-          {/* キャラクター */}
-          <Image source={require('../../assets/kobaokun.png')} style={styles.character} />
 
           {/* タイトル */}
           <Text style={styles.title}>KOBAOに質問しよう</Text>
@@ -66,6 +64,8 @@ export default function IndexScreen() {
               multiline
             />
           </View>
+          {/* キャラクター */}
+          <Image source={require('../../assets/kobaokun.png')} style={styles.character} />
 
           {/* 送信ボタン */}
           <Pressable style={styles.button} onPress={sendTextToFlask}>
@@ -85,8 +85,8 @@ const getStyles = (isDark: boolean) =>
       padding: 24,
     },
     character: {
-      width: 200,
-      height: 200,
+      width: 150,
+      height: 150,
       resizeMode: 'contain',
       alignSelf: 'center',
       marginBottom: 12,
@@ -112,6 +112,7 @@ const getStyles = (isDark: boolean) =>
       padding: 12,
       marginBottom: 16,
       shadowColor: '#000',
+      height: 150,
       shadowOpacity: 0.1,
       shadowOffset: { width: 0, height: 2 },
       shadowRadius: 4,
@@ -121,6 +122,7 @@ const getStyles = (isDark: boolean) =>
       fontSize: 16,
       color: isDark ? '#fff' : '#333',
       minHeight: 80,
+      maxHeight: 200, // 最大高さを指定
       textAlignVertical: 'top',
     },
     button: {
@@ -138,19 +140,5 @@ const getStyles = (isDark: boolean) =>
       color: '#fff',
       fontSize: 18,
       fontWeight: 'bold',
-    },
-    history: {
-      marginTop: 24,
-    },
-    historyTitle: {
-      fontSize: 16,
-      fontWeight: '600',
-      marginBottom: 8,
-      color: isDark ? '#fff' : '#333',
-    },
-    historyItem: {
-      fontSize: 14,
-      color: isDark ? '#ccc' : '#555',
-      marginBottom: 4,
     },
   });

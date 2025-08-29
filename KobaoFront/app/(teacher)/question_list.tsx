@@ -25,7 +25,7 @@ export default function QuestionListScreen() {
   const [selectedQuestionId, setSelectedQuestionId] = useState<number | null>(null);
 
   const [tagsOpen, setTagsOpen] = useState(false);
-  const [tagsValue, setTagsValue] = useState<TagItem[]>([]);
+  const [tagsValue, setTagsValue] = useState<string[]>([]);
   const [tagsItems, setTagsItems] = useState<TagItem[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
@@ -66,7 +66,7 @@ export default function QuestionListScreen() {
         headers: { 'Content-Type': 'application/json' }
       })
       const data = await response.json();
-      // console.log(data)
+      console.log(data)
       // データの受け取り(map)。(tag[値]:any[型])
       const Qestions = data.question.map
         ((question: any) => ({
@@ -169,7 +169,7 @@ export default function QuestionListScreen() {
               </TouchableOpacity>
             </View>
 
-      
+
             <View
               style={{ maxHeight: "90%" }}
             >
@@ -372,6 +372,6 @@ const styles = StyleSheet.create({
   },
   buttonSpacing: {
     marginVertical: 4,
-    
+
   },
 });
