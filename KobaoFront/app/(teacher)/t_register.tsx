@@ -8,7 +8,6 @@ export default function TeacherRegisterScreen() {
   const [teacher_id, setTeacher_id] = useState("");
   const [name, setName] = useState("");
   const [message, setMessage] = useState('');
-
   useFocusEffect(
     useCallback(() => {
       setMessage('');
