@@ -22,7 +22,7 @@ export default function QuestionByTagScreen() {
   // タグ一覧取得
   const select_all_tag = async () => {
     try {
-      const response = await fetch(`${api.defaults.baseURL}/teacher/select_tag`, { method: 'GET' });
+      const response = await fetch(`${api.defaults.baseURL}/teacher/select_tag`, { method: 'POST' });
       const data = await response.json();
       const formattedTags = data.tag.map((tag: any) => ({
         label: tag.tag_name.trim(),
@@ -36,7 +36,7 @@ export default function QuestionByTagScreen() {
   // 質問一覧取得（タグ付き）
   const select_all_question = async () => {
     try {
-      const response = await fetch(`${api.defaults.baseURL}/teacher/select_question_tag`, { method: 'GET' });
+      const response = await fetch(`${api.defaults.baseURL}/teacher/select_question_tag`, { method: 'POST' });
       console.log(response);
       const data = await response.json();
       const Qestions_tag = data.ans_tag.map((ans_tag: any) => ({
