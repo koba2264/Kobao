@@ -1,0 +1,93 @@
+name: Boot/Stop Two Sakura Servers
+
+on:
+  schedule:
+    # 起動: 月〜金 08:50 JST = 前日 23:50 UTC
+    - cron: '00 23 * * 0-4'
+    # 停止: 火〜土 01:10 JST = 前日 16:10 UTC
+    - cron: '00 15 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "boot or shutdown"
+        required: true
+        default: "boot"
+
+concurrency:
+  group: sakura-boot-stop                # 二重起動防止
+  cancel-in-progress: false
+
+env:
+  HEALTH_TIMEOUT: "180"                  # ヘルスチェック最大秒数
+
+jobs:
+  boot:
+    if: github.event_name == 'schedule' && github.event.schedule == '00 23 * * 0-4' ||
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'boot')
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: backend
+            id: "113702256089"          # ← あなたのBE ID
+            zone: "tk1b"
+            # health_url: "http://127.0.0.1:6333/collections"
+          - name: frontend
+            id: "113702179364"          # ← あなたのFE ID
+            zone: "tk1b"
+            # health_url: "http://127.0.0.1/health"   # 必要に応じて
+    steps:
+      - name: Install usacloud
+        run: curl -fsSL https://raw.githubusercontent.com/sacloud/usacloud/master/install.sh | bash
+      - name: Configure credentials
+        run: |
+          mkdir -p ~/.usacloud
+          cat > ~/.usacloud/config <<EOF
+          [default]
+          access_token=${{ secrets.SAKURA_TOKEN }}
+          access_token_secret=${{ secrets.SAKURA_SECRET }}
+          zone=${{ matrix.zone }}
+          EOF
+      - name: Boot ${{ matrix.name }}
+        run: |
+          set -euo pipefail
+          usacloud server boot ${{ matrix.id }} --zone ${{ matrix.zone }}
+          usacloud server wait-until-ready ${{ matrix.id }} --zone ${{ matrix.zone }}
+      - name: Optional health check (${{ matrix.name }})
+        run: |
+          set -e
+          if [ -n "${{ matrix.health_url }}" ]; then
+            end=$((SECONDS+${HEALTH_TIMEOUT}))
+            until curl -fsS "${{ matrix.health_url }}" >/dev/null || [ $SECONDS -gt $end ]; do sleep 5; done
+          fi
+
+  shutdown:
+    if: github.event_name == 'schedule' && github.event.schedule == '00 15 * * 1-5' ||
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'shutdown')
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: backend
+            id: "113702256089"
+            zone: "tk1b"
+          - name: frontend
+            id: "113702179364"
+            zone: "tk1b"
+    steps:
+      - name: Install usacloud
+        run: curl -fsSL https://raw.githubusercontent.com/sacloud/usacloud/master/install.sh | bash
+      - name: Configure credentials
+        run: |
+          mkdir -p ~/.usacloud
+          cat > ~/.usacloud/config <<EOF
+          [default]
+          access_token=${{ secrets.SAKURA_TOKEN }}
+          access_token_secret=${{ secrets.SAKURA_SECRET }}
+          zone=${{ matrix.zone }}
+          EOF
+      - name: Graceful shutdown ${{ matrix.name }}
+        run: |
+          set -euo pipefail
+          usacloud server shutdown ${{ matrix.id }} --zone ${{ matrix.zone }}
+          usacloud server wait-until-shutdown ${{ matrix.id }} --zone ${{ matrix.zone }}
