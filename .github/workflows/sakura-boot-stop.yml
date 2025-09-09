@@ -1,4 +1,4 @@
-name: Boot/Stop Two Sakura Servers
+name: Boot/Stop Sakura Servers
 
 on:
   schedule:
@@ -14,54 +14,56 @@ on:
         default: "boot"
 
 concurrency:
-  group: sakura-boot-stop                # 二重起動防止
+  group: sakura-boot-stop
   cancel-in-progress: false
 
 env:
-  HEALTH_TIMEOUT: "180"                  # ヘルスチェック最大秒数
+  USACLOUD_ZONE: "tk1b"
+  USACLOUD_ACCESS_TOKEN: ${{ secrets.SAKURA_TOKEN }}
+  USACLOUD_ACCESS_TOKEN_SECRET: ${{ secrets.SAKURA_SECRET }}
 
 jobs:
-  boot:
+  # ===== 起動ジョブ =====
+  boot-db:
     if: github.event_name == 'schedule' && github.event.schedule == '00 23 * * 0-4' ||
         (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'boot')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install usacloud
+        run: |
+          curl -fsSL https://releases.usacloud.jp/usacloud/repos/install.sh | sh
+          sudo mv usacloud /usr/local/bin/
+          usacloud version
+
+      - name: Boot DB server
+        run: usacloud server boot --zone $USACLOUD_ZONE 113702174172  # ← DBサーバーのIDに置き換え
+
+  boot-app:
+    needs: boot-db
     runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
           - name: backend
-            id: "113702256089"          # ← あなたのBE ID
-            zone: "tk1b"
-            # health_url: "http://127.0.0.1:6333/collections"
+            id: "113702256089"
           - name: frontend
-            id: "113702179364"          # ← あなたのFE ID
-            zone: "tk1b"
-            # health_url: "http://127.0.0.1/health"   # 必要に応じて
+            id: "113702179364"
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Install usacloud
-        run: curl -fsSL https://raw.githubusercontent.com/sacloud/usacloud/master/install.sh | bash
-      - name: Configure credentials
         run: |
-          mkdir -p ~/.usacloud
-          cat > ~/.usacloud/config <<EOF
-          [default]
-          access_token=${{ secrets.SAKURA_TOKEN }}
-          access_token_secret=${{ secrets.SAKURA_SECRET }}
-          zone=${{ matrix.zone }}
-          EOF
-      - name: Boot ${{ matrix.name }}
-        run: |
-          set -euo pipefail
-          usacloud server boot ${{ matrix.id }} --zone ${{ matrix.zone }}
-          usacloud server wait-until-ready ${{ matrix.id }} --zone ${{ matrix.zone }}
-      - name: Optional health check (${{ matrix.name }})
-        run: |
-          set -e
-          if [ -n "${{ matrix.health_url }}" ]; then
-            end=$((SECONDS+${HEALTH_TIMEOUT}))
-            until curl -fsS "${{ matrix.health_url }}" >/dev/null || [ $SECONDS -gt $end ]; do sleep 5; done
-          fi
+          curl -fsSL https://releases.usacloud.jp/usacloud/repos/install.sh | sh
+          sudo mv usacloud /usr/local/bin/
+          usacloud version
+      - name: Boot app server
+        run: usacloud server boot --zone $USACLOUD_ZONE ${{ matrix.id }}
 
-  shutdown:
+  # ===== 停止ジョブ =====
+  shutdown-app:
     if: github.event_name == 'schedule' && github.event.schedule == '00 15 * * 1-5' ||
         (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'shutdown')
     runs-on: ubuntu-latest
@@ -70,24 +72,29 @@ jobs:
         include:
           - name: backend
             id: "113702256089"
-            zone: "tk1b"
           - name: frontend
-            id: "113702179364"
-            zone: "tk1b"
+            id: "	113702179364"
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       - name: Install usacloud
-        run: curl -fsSL https://raw.githubusercontent.com/sacloud/usacloud/master/install.sh | bash
-      - name: Configure credentials
         run: |
-          mkdir -p ~/.usacloud
-          cat > ~/.usacloud/config <<EOF
-          [default]
-          access_token=${{ secrets.SAKURA_TOKEN }}
-          access_token_secret=${{ secrets.SAKURA_SECRET }}
-          zone=${{ matrix.zone }}
-          EOF
-      - name: Graceful shutdown ${{ matrix.name }}
+          curl -fsSL https://releases.usacloud.jp/usacloud/repos/install.sh | sh
+          sudo mv usacloud /usr/local/bin/
+          usacloud version
+      - name: Stop app server
+        run: usacloud server stop --zone $USACLOUD_ZONE ${{ matrix.id }}
+
+  shutdown-db:
+    needs: shutdown-app
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install usacloud
         run: |
-          set -euo pipefail
-          usacloud server shutdown ${{ matrix.id }} --zone ${{ matrix.zone }}
-          usacloud server wait-until-shutdown ${{ matrix.id }} --zone ${{ matrix.zone }}
+          curl -fsSL https://releases.usacloud.jp/usacloud/repos/install.sh | sh
+          sudo mv usacloud /usr/local/bin/
+          usacloud version
+      - name: Stop DB server
+        run: usacloud server stop --zone $USACLOUD_ZONE 113702174172  # ← DBサーバーのIDに置き換え
